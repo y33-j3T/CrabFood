@@ -12,8 +12,6 @@ import javafx.stage.Stage;
 public class Main extends Application {
 //    
     public static void main(String[] args) {
-        SimulatedTime time = new SimulatedTime(0, 0);
-        System.out.println(time);
         launch(args);
         /**
          *  start gui

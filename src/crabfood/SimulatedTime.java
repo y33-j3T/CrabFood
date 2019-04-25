@@ -25,7 +25,6 @@ public class SimulatedTime {
     public void setMinute(int minute) {
         this.minute = minute;
     }
-
     
     public void tick() {
         if (minute==59) {
@@ -40,17 +39,12 @@ public class SimulatedTime {
         }
     }
 
-    public boolean compareTime(int hour, int minute) {
+    public boolean equalsTime(int hour, int minute) {
         return this.hour == hour && this.minute == minute;
     }
 
     @Override
     public String toString() {
         return String.format("%02d:%02d", hour, minute);
-    }
-    
-    public static void main(String[] args) {
-        SimulatedTime time = new SimulatedTime(0, 0);
-        System.out.println(time);
     }
 }
