@@ -28,7 +28,7 @@ public class MyGoogleMap {
         this.allRestaurantPositions = allRestaurantPositions;
     }
     
-    private class Position {
+    class Position {
 
         private int posX;
         private int posY;

@@ -1,19 +1,17 @@
 package crabfood;
 
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.HashMap;
 
 class Restaurant {
 
     private String name;
-    private MyGoogleMap position;
+    private ArrayBag<MyGoogleMap.Position> positions;
     private ArrayBag<Dish> allAvailableDishes;
     private ArrayBag<restaurantOrder> allRestaurantOrders;
 
-    public Restaurant(String name, MyGoogleMap position, ArrayBag<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
+    public Restaurant(String name, ArrayBag<MyGoogleMap.Position> positions, ArrayBag<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
         this.name = name;
-        this.position = position;
+        this.positions = positions;
         this.allAvailableDishes = allAvailableDishes;
         this.allRestaurantOrders = allRestaurantOrders;
     }
@@ -26,12 +24,12 @@ class Restaurant {
         this.name = name;
     }
 
-    public MyGoogleMap getPosition() {
-        return position;
+    public ArrayBag<MyGoogleMap.Position> getPositions() {
+        return positions;
     }
 
-    public void setPosition(MyGoogleMap position) {
-        this.position = position;
+    public void setPositions(ArrayBag<MyGoogleMap.Position> positions) {
+        this.positions = positions;
     }
 
     public ArrayBag<Dish> getAllAvailableDishes() {
@@ -50,21 +48,21 @@ class Restaurant {
         this.allRestaurantOrders = allRestaurantOrders;
     }
 
-    private class restaurantOrder {
+    class restaurantOrder {
 
         private HashMap<Dish, Integer> restaurantOrders;
-        private LocalTime orderTime;
+        private SimulatedTime orderTime;
 
-        public restaurantOrder(HashMap<Dish, Integer> restaurantOrders, LocalTime orderTime) {
+        public restaurantOrder(HashMap<Dish, Integer> restaurantOrders, SimulatedTime orderTime) {
             this.restaurantOrders = restaurantOrders;
             this.orderTime = orderTime;
         }
 
-        public LocalTime getOrderTime() {
+        public SimulatedTime getOrderTime() {
             return orderTime;
         }
 
-        public void setOrderTime(LocalTime orderTime) {
+        public void setOrderTime(SimulatedTime orderTime) {
             this.orderTime = orderTime;
         }
 
@@ -80,9 +78,9 @@ class Restaurant {
     class Dish {
 
         private String name;
-        private Duration foodPrepareDuration;
+        private int foodPrepareDuration;
 
-        public Dish(String name, Duration foodPrepareDuration) {
+        public Dish(String name, int foodPrepareDuration) {
             this.name = name;
             this.foodPrepareDuration = foodPrepareDuration;
         }
@@ -95,11 +93,11 @@ class Restaurant {
             this.name = name;
         }
 
-        public Duration getFoodPrepareDuration() {
+        public int getFoodPrepareDuration() {
             return foodPrepareDuration;
         }
 
-        public void setFoodPrepareDuration(Duration foodPrepareDuration) {
+        public void setFoodPrepareDuration(int foodPrepareDuration) {
             this.foodPrepareDuration = foodPrepareDuration;
         }
     }

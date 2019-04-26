@@ -1,18 +1,20 @@
 package crabfood;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 class CrabFoodOperator {
 
     private static MyGoogleMap masterMap;
-    private ArrayBag<Restaurant> partnerRestaurants;
-    private ArrayBag<CrabFoodOrder> allCrabFoodOrders;
-    private ArrayList<DeliveryGuy> allDeliveryGuys;
+    private static ArrayBag<Restaurant> partnerRestaurants;
+    private static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
+    private static ArrayList<DeliveryGuy> allDeliveryGuys;
 
     public CrabFoodOperator() {
-        this.allDeliveryGuys = new ArrayList<>(3);
+        CrabFoodOperator.masterMap = new MyGoogleMap();
+        CrabFoodOperator.allDeliveryGuys = new ArrayList<>(allDeliveryGuys.size());
+        
+        
         // populate txt for restaurant, crabfood orders and delivery guys
     }
 
@@ -29,7 +31,7 @@ class CrabFoodOperator {
     }
 
     public void setPartnerRestaurants(ArrayBag<Restaurant> partnerRestaurants) {
-        this.partnerRestaurants = partnerRestaurants;
+        CrabFoodOperator.partnerRestaurants = partnerRestaurants;
     }
 
     public ArrayBag<CrabFoodOrder> getAllCrabFoodOrders() {
@@ -37,7 +39,7 @@ class CrabFoodOperator {
     }
 
     public void setAllCrabFoodOrders(ArrayBag<CrabFoodOrder> allCrabFoodOrders) {
-        this.allCrabFoodOrders = allCrabFoodOrders;
+        CrabFoodOperator.allCrabFoodOrders = allCrabFoodOrders;
     }
 
     public ArrayList<DeliveryGuy> getAllDeliveryGuys() {
@@ -45,28 +47,28 @@ class CrabFoodOperator {
     }
 
     public void setAllDeliveryGuys(ArrayList<DeliveryGuy> allDeliveryGuys) {
-        this.allDeliveryGuys = allDeliveryGuys;
+        CrabFoodOperator.allDeliveryGuys = allDeliveryGuys;
     }
 
     class CrabFoodOrder {
 
-        private LocalTime orderTime;
+        private SimulatedTime orderTime;
         private Restaurant restaurant;
         private HashMap<Restaurant.Dish, Integer> crabFoodOrders;
         private MyGoogleMap deliveryLocation;
 
-        public CrabFoodOrder(LocalTime orderTime, Restaurant restaurant, HashMap<Restaurant.Dish, Integer> crabFoodOrders, MyGoogleMap deliveryLocation) {
+        public CrabFoodOrder(SimulatedTime orderTime, Restaurant restaurant, HashMap<Restaurant.Dish, Integer> crabFoodOrders, MyGoogleMap deliveryLocation) {
             this.orderTime = orderTime;
             this.restaurant = restaurant;
             this.crabFoodOrders = crabFoodOrders;
             this.deliveryLocation = deliveryLocation;
         }
 
-        public LocalTime getOrderTime() {
+        public SimulatedTime getOrderTime() {
             return orderTime;
         }
 
-        public void setOrderTime(LocalTime orderTime) {
+        public void setOrderTime(SimulatedTime orderTime) {
             this.orderTime = orderTime;
         }
 

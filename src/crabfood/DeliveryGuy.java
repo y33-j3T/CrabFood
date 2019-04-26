@@ -1,17 +1,14 @@
 package crabfood;
 
-import java.time.Duration;
-import java.time.LocalTime;
-
 class DeliveryGuy {
 
     private MyGoogleMap deliveryStartPosition;
     private MyGoogleMap deliveryEndPosition;
-    private Duration deliveryDuration;
-    private LocalTime deliveryEndTime;
+    private int deliveryDuration;
+    private SimulatedTime deliveryEndTime;
     private CrabFoodOperator.CrabFoodOrder CrabFoodOrderTBD;
 
-    public DeliveryGuy(MyGoogleMap deliveryStartPosition, MyGoogleMap deliveryEndPosition, Duration deliveryDuration, LocalTime deliveryEndTime, CrabFoodOperator.CrabFoodOrder CrabFoodOrderTBD) {
+    public DeliveryGuy(MyGoogleMap deliveryStartPosition, MyGoogleMap deliveryEndPosition, int deliveryDuration, SimulatedTime deliveryEndTime, CrabFoodOperator.CrabFoodOrder CrabFoodOrderTBD) {
         this.deliveryStartPosition = deliveryStartPosition;
         this.deliveryEndPosition = deliveryEndPosition;
         this.deliveryDuration = deliveryDuration;
@@ -35,19 +32,19 @@ class DeliveryGuy {
         this.deliveryEndPosition = deliveryEndPosition;
     }
 
-    public Duration getDeliveryDuration() {
+    public int getDeliveryDuration() {
         return deliveryDuration;
     }
 
-    public void setDeliveryDuration(Duration deliveryDuration) {
+    public void setDeliveryDuration(int deliveryDuration) {
         this.deliveryDuration = deliveryDuration;
     }
 
-    public LocalTime getDeliveryEndTime() {
+    public SimulatedTime getDeliveryEndTime() {
         return deliveryEndTime;
     }
 
-    public void setDeliveryEndTime(LocalTime deliveryEndTime) {
+    public void setDeliveryEndTime(SimulatedTime deliveryEndTime) {
         this.deliveryEndTime = deliveryEndTime;
     }
 
