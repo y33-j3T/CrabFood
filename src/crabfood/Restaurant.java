@@ -1,19 +1,20 @@
 package crabfood;
 
 import crabfood.MyGoogleMap.Position;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 class Restaurant {
 
     private String name;
     private ArrayBag<Position> positions;
-    private ArrayBag<Dish> allAvailableDishes;
+    private ArrayList<Dish> allAvailableDishes;
     private ArrayBag<restaurantOrder> allRestaurantOrders;
 
     public Restaurant() {
     }
 
-    public Restaurant(String name, ArrayBag<Position> positions, ArrayBag<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
+    public Restaurant(String name, ArrayBag<Position> positions, ArrayList<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
         this.name = name;
         this.positions = positions;
         this.allAvailableDishes = allAvailableDishes;
@@ -36,11 +37,11 @@ class Restaurant {
         this.positions = positions;
     }
 
-    public ArrayBag<Dish> getAllAvailableDishes() {
+    public ArrayList<Dish> getAllAvailableDishes() {
         return allAvailableDishes;
     }
 
-    public void setAllAvailableDishes(ArrayBag<Dish> allAvailableDishes) {
+    public void setAllAvailableDishes(ArrayList<Dish> allAvailableDishes) {
         this.allAvailableDishes = allAvailableDishes;
     }
 

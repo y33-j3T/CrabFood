@@ -5,13 +5,14 @@ import crabfood.Restaurant.Dish;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 class CrabFoodOperator {
 
-    public static ArrayBag<Restaurant> partnerRestaurants;
+    public static ArrayList<Restaurant> partnerRestaurants;
     public static MyGoogleMap masterMap;
     public static ArrayList<DeliveryGuy> allDeliveryGuys;
     public static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
@@ -21,7 +22,7 @@ class CrabFoodOperator {
         masterMap = new MyGoogleMap();
         
         // load previously saved partner restaurants
-        partnerRestaurants = new ArrayBag<>();
+        partnerRestaurants = new ArrayList<>();
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
 
@@ -33,7 +34,7 @@ class CrabFoodOperator {
 
                 // read restaurant positions & dishes
                 ArrayBag<Position> restaurantPositions = new ArrayBag<>();
-                ArrayBag<Dish> dishes = new ArrayBag<>();
+                ArrayList<Dish> dishes = new ArrayList<>();
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
 
@@ -57,6 +58,9 @@ class CrabFoodOperator {
                 restaurant.setAllAvailableDishes(dishes);
 
                 partnerRestaurants.add(restaurant);
+                System.out.println(restaurant.getName());
+                System.out.println(restaurant.getPositions());
+                System.out.println(restaurant.getAllAvailableDishes().get(0).getName());
             }
 
         } catch (FileNotFoundException e) {
@@ -66,8 +70,8 @@ class CrabFoodOperator {
         // update map 
         // in case of changes to "partner-restaurant.txt" 
         // or in case of corrupted "map.txt"
-        masterMap.updateMap();
-
+//        masterMap.updateMap();
+        
         CrabFoodOperator.allDeliveryGuys = new ArrayList<>();
         CrabFoodOperator.allCrabFoodOrders = new ArrayBag<>();
 
@@ -91,11 +95,11 @@ class CrabFoodOperator {
         CrabFoodOperator.masterMap = masterMap;
     }
 
-    public ArrayBag<Restaurant> getPartnerRestaurants() {
+    public ArrayList<Restaurant> getPartnerRestaurants() {
         return partnerRestaurants;
     }
 
-    public void setPartnerRestaurants(ArrayBag<Restaurant> partnerRestaurants) {
+    public void setPartnerRestaurants(ArrayList<Restaurant> partnerRestaurants) {
         CrabFoodOperator.partnerRestaurants = partnerRestaurants;
     }
 
@@ -117,48 +121,13 @@ class CrabFoodOperator {
 
     class CrabFoodOrder {
 
+        private int customerId;
         private SimulatedTime orderTime;
         private Restaurant restaurant;
-        private HashMap<Restaurant.Dish, Integer> crabFoodOrders;
-        private MyGoogleMap deliveryLocation;
+        private HashMap<Dish, Integer> crabFoodOrders;
+        private Position deliveryLocation;
+        
 
-        public CrabFoodOrder(SimulatedTime orderTime, Restaurant restaurant, HashMap<Restaurant.Dish, Integer> crabFoodOrders, MyGoogleMap deliveryLocation) {
-            this.orderTime = orderTime;
-            this.restaurant = restaurant;
-            this.crabFoodOrders = crabFoodOrders;
-            this.deliveryLocation = deliveryLocation;
-        }
-
-        public SimulatedTime getOrderTime() {
-            return orderTime;
-        }
-
-        public void setOrderTime(SimulatedTime orderTime) {
-            this.orderTime = orderTime;
-        }
-
-        public Restaurant getRestaurant() {
-            return restaurant;
-        }
-
-        public void setRestaurant(Restaurant restaurant) {
-            this.restaurant = restaurant;
-        }
-
-        public HashMap<Restaurant.Dish, Integer> getCrabFoodOrders() {
-            return crabFoodOrders;
-        }
-
-        public void setCrabFoodOrders(HashMap<Restaurant.Dish, Integer> crabFoodOrders) {
-            this.crabFoodOrders = crabFoodOrders;
-        }
-
-        public MyGoogleMap getDeliveryLocation() {
-            return deliveryLocation;
-        }
-
-        public void setDeliveryLocation(MyGoogleMap deliveryLocation) {
-            this.deliveryLocation = deliveryLocation;
-        }
+        
     }
 }

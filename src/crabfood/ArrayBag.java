@@ -177,6 +177,11 @@ public class ArrayBag<T> implements BagInterface<T> {
 
         return newBag;
     }
+    
+    @Override
+    public String toString() {
+        return Arrays.toString(bag);
+    }
 
 //    public static void main(String[] args) {
 //        ArrayBag<String> bag1 = new ArrayBag();

@@ -4,7 +4,6 @@ import static crabfood.CrabFoodOperator.partnerRestaurants;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 
 public class MyGoogleMap {
@@ -48,7 +47,7 @@ public class MyGoogleMap {
     // read all restaurant positions again & reprint map into "map.txt"
     public void updateMap() {
         if (!hasOverlappedPositions()) {
-            for (Restaurant r : partnerRestaurants.toArray()) {
+            for (Restaurant r : partnerRestaurants) {
                 for (Position p : r.getPositions().toArray()) {
                     allRestaurantPositions.add(p);
                 }
@@ -60,14 +59,14 @@ public class MyGoogleMap {
 
     public boolean hasOverlappedPositions() {
         ArrayBag<Position> allPositions = new ArrayBag<>();
-        for (Restaurant r : partnerRestaurants.toArray()) {
+        for (Restaurant r : partnerRestaurants) {
             for (Position p : r.getPositions().toArray()) {
                 allPositions.add(p);
             }
         }
-        
-        for (Position p : allPositions.toArray()){
-            if(allPositions.getFrequencyOf(p)>1){
+
+        for (Position p : allPositions.toArray()) {
+            if (allPositions.getFrequencyOf(p) > 1) {
                 return true;
             }
         }
@@ -119,6 +118,11 @@ public class MyGoogleMap {
 
         public void setPosY(int posY) {
             this.posY = posY;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("(%d, %d)", posX, posY);
         }
     }
 }
