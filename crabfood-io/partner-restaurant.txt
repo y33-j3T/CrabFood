@@ -1,0 +1,30 @@
+Crusty Crab
+3 3
+2 0
+4 4
+Crabby Patty
+20
+Sailors Surprise
+25
+
+Phum Bucket
+1 3
+2 2
+4 1
+Phum Burger
+20
+Phum Fries
+15
+Phum Pie
+10
+
+Burger Krusty
+1 4
+0 1
+4 0
+The Klogger
+20
+Fish Sandwich
+15
+Twisty Lard
+10

@@ -9,7 +9,7 @@ public class ArrayBag<T> implements BagInterface<T> {
     private int DEFAULT_CAPACITY = 25;
     private T[] bag = (T[]) new Object[DEFAULT_CAPACITY];
     private int numberOfEntries;
-
+    
     @Override
     public int getCurrentSize() {
         return numberOfEntries;
@@ -17,7 +17,7 @@ public class ArrayBag<T> implements BagInterface<T> {
 
     @Override
     public boolean isFull() {
-        return numberOfEntries == 25;
+        return numberOfEntries == DEFAULT_CAPACITY;
     }
 
     @Override
@@ -27,7 +27,13 @@ public class ArrayBag<T> implements BagInterface<T> {
 
     @Override
     public boolean add(T newEntry) {
+        // allow it to reach a capacity of 100
         if (numberOfEntries < DEFAULT_CAPACITY) {
+            numberOfEntries++;
+            bag[numberOfEntries - 1] = newEntry;
+            return true;
+        } else if (DEFAULT_CAPACITY < 100) {
+            DEFAULT_CAPACITY += 25;
             numberOfEntries++;
             bag[numberOfEntries - 1] = newEntry;
             return true;

@@ -6,13 +6,16 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 //    
     public static void main(String[] args) {
+        CrabFoodOperator operator = new CrabFoodOperator();
         launch(args);
+        
         /**
          *  start gui
          *  start time
@@ -37,22 +40,33 @@ public class Main extends Application {
          *  
          */
     }
+    
 
+    Scene scene1, scene2;
     @Override
     public void start(Stage primaryStage) throws Exception {
+        
         Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(fn -> System.out.println("hello"));
+        btn.setText("Go to scene 2");
+        btn.setOnAction(fn -> primaryStage.setScene(scene2));
         
-        Label label1 = new Label("hello");
+        StackPane layout1 = new StackPane();
+        layout1.getChildren().addAll(btn);
         
-        StackPane layout = new StackPane();
-        layout.getChildren().addAll(btn, label1);
+        scene1 = new Scene(layout1, 300, 500);
         
-        Scene scene = new Scene(layout, 300, 500);
+        Button btn2 = new Button();
+        btn2.setText("go to scene 1");
+        btn2.setOnAction(fn -> primaryStage.setScene(scene1));
+        
+        HBox layout2 = new HBox();
+        Label label1 = new Label("helllfsodfos");
+        layout2.getChildren().addAll(btn2, label1);
+        scene2 = new Scene(layout2, 300, 500);
+        
         
         primaryStage.setTitle("CrabFood");
-        primaryStage.setScene(scene);
+        primaryStage.setScene(scene1);
         primaryStage.show();
     }
     
