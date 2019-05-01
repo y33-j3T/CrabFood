@@ -74,18 +74,16 @@ public class Main extends Application {
 
         Button btnSC = new Button("Simulate Customer");
         btnSC.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnVOL.setOnAction(fn -> window.setScene(sceneSC));
+        btnSC.setOnAction(fn -> window.setScene(sceneSC));
 
         // #
         VBox layoutMenuLeft = new VBox(10, btnMR, btnMD, btnVOL, btnSC);
-        
-        // =====================================================================
+
         // Process Log
         TextArea txtareaPL = new TextArea();
         txtareaPL.setMinSize(500, 400);
         txtareaPL.setEditable(false);
 
-        // =====================================================================
         // Order Status
         TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
         colCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
@@ -115,7 +113,6 @@ public class Main extends Application {
         VBox layoutMenuRight = new VBox(10, txtareaPL, tableOS);
         VBox.setVgrow(txtareaPL, Priority.ALWAYS);
         VBox.setVgrow(tableOS, Priority.ALWAYS);
-        layoutMenuRight.setAlignment(Pos.CENTER);
 
         // ##
         GridPane layoutMenu = new GridPane();
@@ -138,7 +135,6 @@ public class Main extends Application {
         listRestaurant.getItems().add("restaurant 2");
         listRestaurant.getItems().add("restaurant 3");
 
-        // =====================================================================
         // Buttons
         Button btnMR_EDIT = new Button("Edit");
         btnMR_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -152,15 +148,16 @@ public class Main extends Application {
         Button btnMR_ADD = new Button("Add");
         btnMR_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnMR_ADD.setOnAction(fn -> window.setScene(sceneER));
-        
+
         Button btnMR_DONE = new Button("Done");
         btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnMR_DONE.setOnAction(fn -> window.setScene(sceneMenu));
-        
+
+        // #
         HBox layoutMRBottom = new HBox(10, btnMR_EDIT, btnMR_DELETE, btnMR_ADD, btnMR_DONE);
         layoutMRBottom.setAlignment(Pos.CENTER);
-        
-        // #
+
+        // ##
         GridPane layoutMR = new GridPane();
         GridPane.setVgrow(listRestaurant, Priority.ALWAYS);
         GridPane.setHgrow(listRestaurant, Priority.ALWAYS);
@@ -169,7 +166,7 @@ public class Main extends Application {
         layoutMR.setPadding(new Insets(10, 10, 10, 10));
         layoutMR.setVgap(10);
         layoutMR.getChildren().addAll(listRestaurant, layoutMRBottom);
-        
+
         sceneMR = new Scene(layoutMR, 1080, 828);
 
         // =====================================================================
@@ -177,56 +174,75 @@ public class Main extends Application {
         // =====================================================================
         // Number of Delivery Man
         Label labelNumDeliveryMan = new Label("Number of Delivery Man : ");
-        
+
         Spinner spinnerNumDeliveryMan = new Spinner(1, 100, 1);
         spinnerNumDeliveryMan.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
         spinnerNumDeliveryMan.setEditable(true);
-        
+
         // #
         HBox layoutMDTop = new HBox(10, labelNumDeliveryMan, spinnerNumDeliveryMan);
         layoutMDTop.setAlignment(Pos.CENTER);
-        
+
         // Button
         Button btnMD_DONE = new Button("Done");
         btnMD_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnMD_DONE.setOnAction(fn -> window.setScene(sceneMenu));
-        
+
         // #
-        HBox layoutMDBottom = new HBox(10, btnMD_DONE);
+        HBox layoutMDBottom = new HBox(btnMD_DONE);
         layoutMDBottom.setAlignment(Pos.CENTER);
-        
-        //#
+
+        // ##
         GridPane layoutMD = new GridPane();
-//        layoutMD.setAlignment(Pos.CENTER);
         GridPane.setVgrow(layoutMDTop, Priority.ALWAYS);
         GridPane.setHgrow(layoutMDTop, Priority.ALWAYS);
         GridPane.setConstraints(layoutMDTop, 0, 0);
         GridPane.setConstraints(layoutMDBottom, 0, 1);
         layoutMD.setPadding(new Insets(10, 10, 10, 10));
-//        layoutMD.setVgap(10);
         layoutMD.getChildren().addAll(layoutMDTop, layoutMDBottom);
+
         sceneMD = new Scene(layoutMD, 1080, 828);
 
         // =====================================================================
         // VIEW ORDER LOG
         // =====================================================================
-//        sceneVOL = new Scene(layoutVOL, 1080, 828);
+        // Order Log
+        TextArea txtareaOrderLog = new TextArea();
+        txtareaOrderLog.setEditable(false);
+        
+        // Button
+        Button btnVOL_BACK = new Button("Back");
+        btnVOL_BACK.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnVOL_BACK.setOnAction(fn -> window.setScene(sceneMenu));
+
+        // #
+        HBox layoutVOLBottom = new HBox(btnVOL_BACK);
+        layoutVOLBottom.setAlignment(Pos.CENTER);
+
+        // ##
+        GridPane layoutVOL = new GridPane();
+        GridPane.setVgrow(txtareaOrderLog, Priority.ALWAYS);
+        GridPane.setHgrow(txtareaOrderLog, Priority.ALWAYS);
+        GridPane.setConstraints(txtareaOrderLog, 0, 0);
+        GridPane.setConstraints(layoutVOLBottom, 0, 1);
+        layoutVOL.setVgap(10);
+        layoutVOL.setPadding(new Insets(10, 10, 10, 10));
+        layoutVOL.getChildren().addAll(txtareaOrderLog, layoutVOLBottom);
+
+        sceneVOL = new Scene(layoutVOL, 1080, 828);
 
         // =====================================================================
         // SIMULATE CUSTOMER
         // =====================================================================
 //        sceneSC = new Scene(layoutSC, 1080, 828);
-
         // =====================================================================
         // EDIT RESTAURANT
         // =====================================================================
 //        sceneER = new Scene(layoutER, 1080, 828);
-
         // =====================================================================
         // EDIT DISHES
         // =====================================================================
 //        sceneEDs = new Scene(layoutEDs, 1080, 828);
-
         // =====================================================================
         // EDIT DISH
         // =====================================================================
