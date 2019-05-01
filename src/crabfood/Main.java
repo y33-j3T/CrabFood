@@ -5,6 +5,7 @@ import crabfood.Restaurant.Dish;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -286,11 +287,57 @@ public class Main extends Application {
         // =====================================================================
         // EDIT DISH
         // =====================================================================
-//        sceneED = new Scene(layoutED, 1080, 828);
+        // Dish Name
+        Label labelDishName = new Label("Dish Name : ");
+        
+        TextArea txtareaDishName = new TextArea();
+        txtareaDishName.setPrefHeight(txtareaDishName.DEFAULT_PREF_ROW_COUNT);
+        txtareaDishName.setPrefWidth(500);
+        txtareaDishName.setPromptText("Enter dish name");
+
+        // Dish Prep Time
+        Label labelDishPrepTime = new Label("Dish Preparation Time : ");
+        
+        Spinner spinnerDishPrepTime = new Spinner(1, 60, 5);
+        spinnerDishPrepTime.setPrefWidth(500);
+        spinnerDishPrepTime.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
+        spinnerDishPrepTime.setEditable(true);
+
+        // #
+        GridPane layoutEDTop = new GridPane();
+        GridPane.setConstraints(labelDishName, 0, 0);
+        GridPane.setConstraints(txtareaDishName, 1, 0);
+        GridPane.setConstraints(labelDishPrepTime, 0, 1);
+        GridPane.setConstraints(spinnerDishPrepTime, 1, 1);
+        GridPane.setHalignment(labelDishName, HPos.RIGHT);
+        
+        layoutEDTop.setVgap(10);
+        layoutEDTop.setHgap(10);
+        layoutEDTop.getChildren().addAll(labelDishName, txtareaDishName, labelDishPrepTime, spinnerDishPrepTime);
+        layoutEDTop.setAlignment(Pos.CENTER);
+
+        // Button
+        Button btnED_DONE = new Button("Done");
+        btnED_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnED_DONE.setOnAction(fn -> window.setScene(sceneEDs));
+
+        // #
+        HBox layoutEDBottom = new HBox(btnED_DONE);
+        layoutEDBottom.setAlignment(Pos.CENTER);
+
+        // ##
+        GridPane layoutED = new GridPane();
+        GridPane.setVgrow(layoutEDTop, Priority.ALWAYS);
+        GridPane.setHgrow(layoutEDTop, Priority.ALWAYS);
+        GridPane.setConstraints(layoutEDTop, 0, 0);
+        GridPane.setConstraints(layoutEDBottom, 0, 1);
+        layoutED.setPadding(new Insets(10, 10, 10, 10));
+        layoutED.getChildren().addAll(layoutEDTop, layoutEDBottom);
+        sceneED = new Scene(layoutED, 1080, 828);
 
         window.setMinHeight(876);
         window.setMinWidth(802);
-        window.setScene(sceneEDs);
+        window.setScene(sceneED);
         window.setTitle("CrabFood");
         window.show();
     }
