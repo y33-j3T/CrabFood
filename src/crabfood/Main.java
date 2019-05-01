@@ -9,7 +9,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -47,85 +50,188 @@ public class Main extends Application {
          */
     }
 
-    Scene sceneMR, sceneMD, sceneVOL, sceneMenu;
+    Scene sceneMenu, sceneMR, sceneMD, sceneVOL, sceneSC, sceneER, sceneEDs, sceneED;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Stage window = primaryStage;
-        
+
         // =====================================================================
         // MENU
         // =====================================================================
         // Manage Restaurants, Manage Delivery, View Order Log
-        Button btnMR = new Button();
-        btnMR.setText("Manage Restaurants");
+        Button btnMR = new Button("Manage Restaurants");
         btnMR.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnMR.setOnAction(fn -> primaryStage.setScene(sceneMR));
+        btnMR.setOnAction(fn -> window.setScene(sceneMR));
 
-        Button btnMD = new Button();
-        btnMD.setText("Manage Delivery");
+        Button btnMD = new Button("Manage Delivery");
         btnMD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnMD.setOnAction(fn -> primaryStage.setScene(sceneMD));
+        btnMD.setOnAction(fn -> window.setScene(sceneMD));
 
-        Button btnVOL = new Button();
-        btnVOL.setText("View Order Log");
+        Button btnVOL = new Button("View Order Log");
         btnVOL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnVOL.setOnAction(fn -> primaryStage.setScene(sceneVOL));
+        btnVOL.setOnAction(fn -> window.setScene(sceneVOL));
 
-        Button btnSC = new Button();
-        btnSC.setText("Simulate Customer");
+        Button btnSC = new Button("Simulate Customer");
         btnSC.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnVOL.setOnAction(fn -> primaryStage.setScene(sceneVOL));
+        btnVOL.setOnAction(fn -> window.setScene(sceneSC));
 
-        VBox MenuLayoutLeft = new VBox(10, btnMR, btnMD, btnVOL, btnSC);
-        MenuLayoutLeft.setAlignment(Pos.TOP_LEFT);
+        // #
+        VBox layoutMenuLeft = new VBox(10, btnMR, btnMD, btnVOL, btnSC);
+        
         // =====================================================================
         // Process Log
         TextArea txtareaPL = new TextArea();
         txtareaPL.setMinSize(500, 400);
         txtareaPL.setEditable(false);
-        
+
         // =====================================================================
         // Order Status
-        TableColumn<CrabFoodOrder, Integer> customerIdCol = new TableColumn<>("Customer ID");
-        customerIdCol.setCellValueFactory(new PropertyValueFactory<>("customerId"));
-        
-        TableColumn<CrabFoodOrder, SimulatedTime> orderTimeCol = new TableColumn<>("Order Time");
-        orderTimeCol.setCellValueFactory(new PropertyValueFactory<>("orderTime"));
-        
-        TableColumn<CrabFoodOrder, Restaurant> restaurantCol = new TableColumn<>("Restaurant");
-        restaurantCol.setCellValueFactory(new PropertyValueFactory<>("restaurant"));
-        
-        TableColumn<CrabFoodOrder, Dish> dishCol = new TableColumn<>("Dish");
-        dishCol.setCellValueFactory(new PropertyValueFactory<>("dish"));
-        
-        TableColumn<CrabFoodOrder, Integer> quantityCol = new TableColumn<>("Quantity");
-        quantityCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        
-        TableColumn<CrabFoodOrder, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-        
+        TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
+        colCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+
+        TableColumn<CrabFoodOrder, SimulatedTime> colOrderTime = new TableColumn<>("Order Time");
+        colOrderTime.setCellValueFactory(new PropertyValueFactory<>("orderTime"));
+
+        TableColumn<CrabFoodOrder, Restaurant> colRestaurant = new TableColumn<>("Restaurant");
+        colRestaurant.setCellValueFactory(new PropertyValueFactory<>("restaurant"));
+
+        TableColumn<CrabFoodOrder, Dish> colDish = new TableColumn<>("Dish");
+        colDish.setCellValueFactory(new PropertyValueFactory<>("dish"));
+
+        TableColumn<CrabFoodOrder, Integer> colQuantity = new TableColumn<>("Quantity");
+        colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        TableColumn<CrabFoodOrder, String> colStatus = new TableColumn<>("Status");
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+
         TableView tableOS = new TableView();
         tableOS.setMinSize(500, 400);
+        tableOS.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableOS.getColumns().addAll(colCustomerId, colOrderTime, colRestaurant, colDish, colQuantity, colStatus);
 //        tableOS.setItems(getData());
-        tableOS.getColumns().addAll(customerIdCol, orderTimeCol, restaurantCol, dishCol, quantityCol, statusCol);
-        
-        VBox MenuLayoutRight = new VBox(8, txtareaPL, tableOS);
-        MenuLayoutRight.setAlignment(Pos.CENTER);
+
+        // #
+        VBox layoutMenuRight = new VBox(10, txtareaPL, tableOS);
         VBox.setVgrow(txtareaPL, Priority.ALWAYS);
         VBox.setVgrow(tableOS, Priority.ALWAYS);
+        layoutMenuRight.setAlignment(Pos.CENTER);
+
+        // ##
+        GridPane layoutMenu = new GridPane();
+        GridPane.setVgrow(layoutMenuRight, Priority.ALWAYS);
+        GridPane.setHgrow(layoutMenuRight, Priority.ALWAYS);
+        GridPane.setConstraints(layoutMenuLeft, 0, 0);
+        GridPane.setConstraints(layoutMenuRight, 1, 0);
+        layoutMenu.setPadding(new Insets(10, 10, 10, 10));
+        layoutMenu.setHgap(10);
+        layoutMenu.getChildren().addAll(layoutMenuLeft, layoutMenuRight);
+
+        sceneMenu = new Scene(layoutMenu, 1080, 828);
+
         // =====================================================================
-        GridPane MenuLayout = new GridPane();
-        GridPane.setVgrow(MenuLayoutRight, Priority.ALWAYS);
-        GridPane.setHgrow(MenuLayoutRight, Priority.ALWAYS);
-        GridPane.setConstraints(MenuLayoutLeft, 0, 0);
-        GridPane.setConstraints(MenuLayoutRight, 1, 0);
-        MenuLayout.setPadding(new Insets(10, 10, 10, 10));
-        MenuLayout.setHgap(10);
-        MenuLayout.getChildren().addAll(MenuLayoutLeft, MenuLayoutRight);
+        // MANAGE RESTAURANT
+        // =====================================================================
+        // Restaurant List
+        ListView listRestaurant = new ListView();
+        listRestaurant.getItems().add("restaurant 1");
+        listRestaurant.getItems().add("restaurant 2");
+        listRestaurant.getItems().add("restaurant 3");
+
+        // =====================================================================
+        // Buttons
+        Button btnMR_EDIT = new Button("Edit");
+        btnMR_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMR_EDIT.setOnAction(fn -> window.setScene(sceneER));
+//        ObservableList selectedIndices = listView.getSelectionModel().getSelectedIndices();
+
+        Button btnMR_DELETE = new Button("Delete");
+        btnMR_DELETE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//        btnMR_EDIT.setOnAction(fn -> window.setScene(sceneED));
+
+        Button btnMR_ADD = new Button("Add");
+        btnMR_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMR_ADD.setOnAction(fn -> window.setScene(sceneER));
         
-        sceneMenu = new Scene(MenuLayout, 1080, 828);
+        Button btnMR_DONE = new Button("Done");
+        btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMR_DONE.setOnAction(fn -> window.setScene(sceneMenu));
         
+        HBox layoutMRBottom = new HBox(10, btnMR_EDIT, btnMR_DELETE, btnMR_ADD, btnMR_DONE);
+        layoutMRBottom.setAlignment(Pos.CENTER);
+        
+        // #
+        GridPane layoutMR = new GridPane();
+        GridPane.setVgrow(listRestaurant, Priority.ALWAYS);
+        GridPane.setHgrow(listRestaurant, Priority.ALWAYS);
+        GridPane.setConstraints(listRestaurant, 0, 0);
+        GridPane.setConstraints(layoutMRBottom, 0, 1);
+        layoutMR.setPadding(new Insets(10, 10, 10, 10));
+        layoutMR.setVgap(10);
+        layoutMR.getChildren().addAll(listRestaurant, layoutMRBottom);
+        
+        sceneMR = new Scene(layoutMR, 1080, 828);
+
+        // =====================================================================
+        // MANAGE DELIVERY
+        // =====================================================================
+        // Number of Delivery Man
+        Label labelNumDeliveryMan = new Label("Number of Delivery Man : ");
+        
+        Spinner spinnerNumDeliveryMan = new Spinner(1, 100, 1);
+        spinnerNumDeliveryMan.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
+        spinnerNumDeliveryMan.setEditable(true);
+        
+        // #
+        HBox layoutMDTop = new HBox(10, labelNumDeliveryMan, spinnerNumDeliveryMan);
+        layoutMDTop.setAlignment(Pos.CENTER);
+        
+        // Button
+        Button btnMD_DONE = new Button("Done");
+        btnMD_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMD_DONE.setOnAction(fn -> window.setScene(sceneMenu));
+        
+        // #
+        HBox layoutMDBottom = new HBox(10, btnMD_DONE);
+        layoutMDBottom.setAlignment(Pos.CENTER);
+        
+        //#
+        GridPane layoutMD = new GridPane();
+//        layoutMD.setAlignment(Pos.CENTER);
+        GridPane.setVgrow(layoutMDTop, Priority.ALWAYS);
+        GridPane.setHgrow(layoutMDTop, Priority.ALWAYS);
+        GridPane.setConstraints(layoutMDTop, 0, 0);
+        GridPane.setConstraints(layoutMDBottom, 0, 1);
+        layoutMD.setPadding(new Insets(10, 10, 10, 10));
+//        layoutMD.setVgap(10);
+        layoutMD.getChildren().addAll(layoutMDTop, layoutMDBottom);
+        sceneMD = new Scene(layoutMD, 1080, 828);
+
+        // =====================================================================
+        // VIEW ORDER LOG
+        // =====================================================================
+//        sceneVOL = new Scene(layoutVOL, 1080, 828);
+
+        // =====================================================================
+        // SIMULATE CUSTOMER
+        // =====================================================================
+//        sceneSC = new Scene(layoutSC, 1080, 828);
+
+        // =====================================================================
+        // EDIT RESTAURANT
+        // =====================================================================
+//        sceneER = new Scene(layoutER, 1080, 828);
+
+        // =====================================================================
+        // EDIT DISHES
+        // =====================================================================
+//        sceneEDs = new Scene(layoutEDs, 1080, 828);
+
+        // =====================================================================
+        // EDIT DISH
+        // =====================================================================
+//        sceneED = new Scene(layoutED, 1080, 828);
+
         window.setMinHeight(876);
         window.setMinWidth(802);
         window.setScene(sceneMenu);
