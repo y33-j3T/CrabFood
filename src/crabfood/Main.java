@@ -234,15 +234,55 @@ public class Main extends Application {
         // =====================================================================
         // SIMULATE CUSTOMER
         // =====================================================================
+        
 //        sceneSC = new Scene(layoutSC, 1080, 828);
         // =====================================================================
         // EDIT RESTAURANT
         // =====================================================================
+        
 //        sceneER = new Scene(layoutER, 1080, 828);
         // =====================================================================
         // EDIT DISHES
         // =====================================================================
-//        sceneEDs = new Scene(layoutEDs, 1080, 828);
+        // Dish List
+        ListView listDishes = new ListView();
+        listDishes.getItems().add("Dish 1");
+        listDishes.getItems().add("Dish 2");
+        listDishes.getItems().add("Dish 3");
+
+        // Buttons
+        Button btnEDs_EDIT = new Button("Edit");
+        btnEDs_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnEDs_EDIT.setOnAction(fn -> window.setScene(sceneED));
+//        ObservableList selectedIndices = listView.getSelectionModel().getSelectedIndices();
+
+        Button btnEDs_DELETE = new Button("Delete");
+        btnEDs_DELETE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//        btnEDs_EDIT.setOnAction(fn -> window.setScene(sceneED));
+
+        Button btnEDs_ADD = new Button("Add");
+        btnEDs_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnEDs_ADD.setOnAction(fn -> window.setScene(sceneED));
+
+        Button btnEDs_DONE = new Button("Done");
+        btnEDs_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnEDs_DONE.setOnAction(fn -> window.setScene(sceneER));
+
+        // #
+        HBox layoutEDsBottom = new HBox(10, btnEDs_EDIT, btnEDs_DELETE, btnEDs_ADD, btnEDs_DONE);
+        layoutEDsBottom.setAlignment(Pos.CENTER);
+
+        // ##
+        GridPane layoutEDs = new GridPane();
+        GridPane.setVgrow(listDishes, Priority.ALWAYS);
+        GridPane.setHgrow(listDishes, Priority.ALWAYS);
+        GridPane.setConstraints(listDishes, 0, 0);
+        GridPane.setConstraints(layoutEDsBottom, 0, 1);
+        layoutEDs.setPadding(new Insets(10, 10, 10, 10));
+        layoutEDs.setVgap(10);
+        layoutEDs.getChildren().addAll(listDishes, layoutEDsBottom);
+        
+        sceneEDs = new Scene(layoutEDs, 1080, 828);
         // =====================================================================
         // EDIT DISH
         // =====================================================================
@@ -250,7 +290,7 @@ public class Main extends Application {
 
         window.setMinHeight(876);
         window.setMinWidth(802);
-        window.setScene(sceneMenu);
+        window.setScene(sceneEDs);
         window.setTitle("CrabFood");
         window.show();
     }
