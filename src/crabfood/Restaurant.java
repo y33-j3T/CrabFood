@@ -7,20 +7,32 @@ import java.util.HashMap;
 class Restaurant {
 
     private String name;
-    private ArrayBag<Position> positions;
+    private Character mapSymbol;
+    private ArrayList<Position> positions;
     private ArrayList<Dish> allAvailableDishes;
     private ArrayBag<restaurantOrder> allRestaurantOrders;
 
     public Restaurant() {
+        this.mapSymbol = '#';
+        this.name = "name not set";
     }
 
-    public Restaurant(String name, ArrayBag<Position> positions, ArrayList<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
+    public Restaurant(Character mapSymbol, String name, ArrayList<Position> positions, ArrayList<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
+        this.mapSymbol = mapSymbol;
         this.name = name;
         this.positions = positions;
         this.allAvailableDishes = allAvailableDishes;
         this.allRestaurantOrders = allRestaurantOrders;
     }
+    
+    public Character getMapSymbol() {
+        return mapSymbol;
+    }
 
+    public void setMapSymbol(Character mapSymbol) {
+        this.mapSymbol = mapSymbol;
+    }
+    
     public String getName() {
         return name;
     }
@@ -29,11 +41,11 @@ class Restaurant {
         this.name = name;
     }
 
-    public ArrayBag<Position> getPositions() {
+    public ArrayList<Position> getPositions() {
         return positions;
     }
 
-    public void setPositions(ArrayBag<Position> positions) {
+    public void setPositions(ArrayList<Position> positions) {
         this.positions = positions;
     }
 

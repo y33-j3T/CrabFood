@@ -18,8 +18,8 @@ class CrabFoodOperator {
     public static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
 
     public CrabFoodOperator() {
-        // load previously saved map
-        masterMap = new MyGoogleMap();
+//        // load previously saved map
+//        masterMap = new MyGoogleMap();
         
         // load previously saved partner restaurants
         partnerRestaurants = new ArrayList<>();
@@ -32,8 +32,11 @@ class CrabFoodOperator {
                 // read restaurant name
                 String restaurantName = s.nextLine();
 
+                // get restaurant map symbol
+                Character restaurantMapSymbol = restaurantName.charAt(0);
+                
                 // read restaurant positions & dishes
-                ArrayBag<Position> restaurantPositions = new ArrayBag<>();
+                ArrayList<Position> restaurantPositions = new ArrayList<>();
                 ArrayList<Dish> dishes = new ArrayList<>();
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
@@ -42,7 +45,7 @@ class CrabFoodOperator {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
                         int posY = Integer.parseInt(coordinateStr[1]);
-                        restaurantPositions.add(masterMap.new Position(posX, posY));
+                        restaurantPositions.add(new Position(posX, posY));
                     } else {
                         if (!input.isEmpty()) {
                             dishes.add(restaurant.new Dish(input, Integer.parseInt(s.nextLine())));
@@ -54,10 +57,12 @@ class CrabFoodOperator {
 
                 // after reading, set name, positions & dishes
                 restaurant.setName(restaurantName);
+                restaurant.setMapSymbol(restaurantMapSymbol);
                 restaurant.setPositions(restaurantPositions);
                 restaurant.setAllAvailableDishes(dishes);
 
                 partnerRestaurants.add(restaurant);
+                System.out.println(restaurant.getMapSymbol());
                 System.out.println(restaurant.getName());
                 System.out.println(restaurant.getPositions());
                 System.out.println(restaurant.getAllAvailableDishes().get(0).getName());

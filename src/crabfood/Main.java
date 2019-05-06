@@ -335,9 +335,10 @@ public class Main extends Application {
         layoutED.getChildren().addAll(layoutEDTop, layoutEDBottom);
         sceneED = new Scene(layoutED, 1080, 828);
 
+        // =====================================================================
         window.setMinHeight(876);
         window.setMinWidth(802);
-        window.setScene(sceneED);
+        window.setScene(sceneMenu);
         window.setTitle("CrabFood");
         window.show();
     }

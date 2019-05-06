@@ -3,42 +3,59 @@ package crabfood;
 import static crabfood.CrabFoodOperator.partnerRestaurants;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MyGoogleMap {
 
-    private int[][] map;
-    private ArrayList<Position> allRestaurantPositions;
+    private ArrayList<ArrayList<Character>> map = new ArrayList<>();
+    private ArrayList<Position> allRestaurantPositions = new ArrayList<>();
+    /**
+     * Positions of restaurants in "partner-restaurant.txt" always overweigh the
+     * their positions previously recorded in this class.
+     */
+    private int width = 0;
+    private int height = 0;
 
     public MyGoogleMap() {
+        readMap();
+    }
+
+    public void readMap() {
         try {
+            // get saved map from "map.txt"
             Scanner s = new Scanner(new FileInputStream("crabfood-io/map.txt"));
 
-            ArrayList<Character[]> charArrList = new ArrayList<>();
-
-            // get saved map from "map.txt"
             while (s.hasNextLine()) {
-                String input = s.nextLine();
-                if (!input.isEmpty()) {
-                    char[] oriCharArr = input.toCharArray();
-                    Character[] newCharArr = new Character[oriCharArr.length];
-                    for (int i = 0; i < newCharArr.length; i++) {
-                        newCharArr[i] = oriCharArr[i];
+                String nextLine = s.nextLine();
+
+                height++;
+                if (width < nextLine.length()) {
+                    width = nextLine.length();
+                }
+
+                ArrayList<Character> charList = new ArrayList<>();
+                for (Character ch : nextLine.toCharArray()) {
+                    charList.add(ch);
+                }
+
+                map.add(charList);
+            }
+
+            if (!map.isEmpty()) {
+                for (ArrayList<Character> charList : map) {
+                    while (charList.size() < width) {
+                        charList.add('0');
                     }
-                    charArrList.add(newCharArr);
                 }
             }
 
-            // if "map.txt" contains a saved map
-            if (!charArrList.isEmpty() && charArrList.get(0).length != 0) {
-                map = new int[charArrList.size()][charArrList.get(0).length];
-                for (int i = 0; i < charArrList.size(); i++) {
-                    for (int j = 0; j < charArrList.get(i).length; j++) {
-                        map[i][j] = charArrList.get(i)[j];
-                    }
-                }
-            }
         } catch (FileNotFoundException e) {
             System.out.println("\"map.txt\" not found.");
         }
@@ -46,22 +63,71 @@ public class MyGoogleMap {
 
     // read all restaurant positions again & reprint map into "map.txt"
     public void updateMap() {
+        PrintWriter pw = null;
+
+        // take a list of all restaurant positions taken from "partner-restaurant.txt"
         if (!hasOverlappedPositions()) {
-            for (Restaurant r : partnerRestaurants) {
-                for (Position p : r.getPositions().toArray()) {
-                    allRestaurantPositions.add(p);
+            for (Restaurant restaurant : partnerRestaurants) {
+                for (Object position : restaurant.getPositions().toArray()) {
+                    allRestaurantPositions.add((Position) position);
                 }
             }
         } else {
             System.out.println("Positions overlap. Unable to update map.");
+        }   // update width & height to fit the positions of restaurants
+        int max_posX = 0;
+        int max_posY = 0;
+        for (Position p : allRestaurantPositions) {
+            if (max_posX < p.getPosX()) {
+                max_posX = p.getPosX();
+            }
+            if (max_posY < p.getPosY()) {
+                max_posY = p.getPosY();
+            }
         }
+        width = max_posX + 1;
+        height = max_posY + 1;
+        // make new map
+        map = new ArrayList<>();
+        Character[] arr = new Character[width];
+        ArrayList<Character> myList = new ArrayList<>(Arrays.asList(arr));
+        Collections.fill(myList, '0');
+        for (int i = 0; i < height; i++) {
+            map.add(myList);
+        }
+        for (Restaurant restaurant : partnerRestaurants) {
+            for (Object position : restaurant.getPositions().toArray()) {
+                Position p = (Position) position;
+                map.get(p.getPosY()).set(p.getPosX(), restaurant.getMapSymbol());
+            }
+        }
+
+        // rewrite "map.txt"
+        try {
+            pw = new PrintWriter(new FileOutputStream("map.txt"));
+            pw.print(map.toString());
+        } catch (FileNotFoundException ex) {
+            System.out.println("\"map.txt\" not found.");
+        } finally {
+            pw.close();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String mapStr = "";
+        for (ArrayList<Character> charList : map) {
+            mapStr += charList.toString();
+            mapStr += "\n";
+        }
+        return mapStr;
     }
 
     public boolean hasOverlappedPositions() {
         ArrayBag<Position> allPositions = new ArrayBag<>();
-        for (Restaurant r : partnerRestaurants) {
-            for (Position p : r.getPositions().toArray()) {
-                allPositions.add(p);
+        for (Restaurant restaurant : partnerRestaurants) {
+            for (Object position : restaurant.getPositions().toArray()) {
+                allPositions.add((Position) position);
             }
         }
 
@@ -73,11 +139,11 @@ public class MyGoogleMap {
         return false;
     }
 
-    public int[][] getMap() {
+    public ArrayList<ArrayList<Character>> getMap() {
         return map;
     }
 
-    public void setMap(int[][] map) {
+    public void setMap(ArrayList<ArrayList<Character>> map) {
         this.map = map;
     }
 
@@ -89,7 +155,7 @@ public class MyGoogleMap {
         this.allRestaurantPositions = allRestaurantPositions;
     }
 
-    class Position {
+    static class Position {
 
         private int posX;
         private int posY;
@@ -119,7 +185,7 @@ public class MyGoogleMap {
         public void setPosY(int posY) {
             this.posY = posY;
         }
-        
+
         @Override
         public String toString() {
             return String.format("(%d, %d)", posX, posY);
