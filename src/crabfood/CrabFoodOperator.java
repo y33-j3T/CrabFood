@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 class CrabFoodOperator {
@@ -18,10 +20,8 @@ class CrabFoodOperator {
     public static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
 
     public CrabFoodOperator() {
-//        // load previously saved map
-//        masterMap = new MyGoogleMap();
-        
-        // load previously saved partner restaurants
+
+        // load previously saved "partner-restaurant.txt"
         partnerRestaurants = new ArrayList<>();
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
@@ -34,7 +34,7 @@ class CrabFoodOperator {
 
                 // get restaurant map symbol
                 Character restaurantMapSymbol = restaurantName.charAt(0);
-                
+
                 // read restaurant positions & dishes
                 ArrayList<Position> restaurantPositions = new ArrayList<>();
                 ArrayList<Dish> dishes = new ArrayList<>();
@@ -71,13 +71,27 @@ class CrabFoodOperator {
         } catch (FileNotFoundException e) {
             System.out.println("\"partner-restaurant.txt\" not found.");
         }
-        
-        // update map 
-        // in case of changes to "partner-restaurant.txt" 
-        // or in case of corrupted "map.txt"
+
+        /**
+         * load previously saved "map.txt" & update it in case of changes to
+         * "partner-restaurant.txt" or in case of corrupted "map.txt"
+         */
+        masterMap = new MyGoogleMap();
+        System.out.println(masterMap);
 //        masterMap.updateMap();
+
+        // load previously saved "delivery-guy.txt"
+        try {
+            Scanner s = new Scanner(new FileInputStream("crabfood-io/delivery-guy.txt"));
+            int numDeliveryGuy = 0;
+            while(s.hasNextInt()) {
+                numDeliveryGuy = s.nextInt();
+            }
+            CrabFoodOperator.allDeliveryGuys = new ArrayList<>(numDeliveryGuy);
+        } catch (FileNotFoundException ex) {
+            System.out.println("\"delivery-guy.txt\" not found.");
+        }
         
-        CrabFoodOperator.allDeliveryGuys = new ArrayList<>();
         CrabFoodOperator.allCrabFoodOrders = new ArrayBag<>();
 
         // populate txt for restaurant, crabfood orders and delivery guys
@@ -131,8 +145,6 @@ class CrabFoodOperator {
         private Restaurant restaurant;
         private HashMap<Dish, Integer> crabFoodOrders;
         private Position deliveryLocation;
-        
 
-        
     }
 }

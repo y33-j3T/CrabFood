@@ -27,9 +27,11 @@ public class MyGoogleMap {
         readMap();
     }
 
+    /**
+     * get saved map from "map.txt"
+     */
     public void readMap() {
         try {
-            // get saved map from "map.txt"
             Scanner s = new Scanner(new FileInputStream("crabfood-io/map.txt"));
 
             while (s.hasNextLine()) {
@@ -61,7 +63,9 @@ public class MyGoogleMap {
         }
     }
 
-    // read all restaurant positions again & reprint map into "map.txt"
+    /**
+     * read all restaurant positions again & reprint map into "map.txt"
+     */
     public void updateMap() {
         PrintWriter pw = null;
 
@@ -74,7 +78,9 @@ public class MyGoogleMap {
             }
         } else {
             System.out.println("Positions overlap. Unable to update map.");
-        }   // update width & height to fit the positions of restaurants
+        }
+
+        // update width & height to fit the positions of restaurants
         int max_posX = 0;
         int max_posY = 0;
         for (Position p : allRestaurantPositions) {
@@ -87,6 +93,7 @@ public class MyGoogleMap {
         }
         width = max_posX + 1;
         height = max_posY + 1;
+
         // make new map
         map = new ArrayList<>();
         Character[] arr = new Character[width];
@@ -95,6 +102,7 @@ public class MyGoogleMap {
         for (int i = 0; i < height; i++) {
             map.add(myList);
         }
+
         for (Restaurant restaurant : partnerRestaurants) {
             for (Object position : restaurant.getPositions().toArray()) {
                 Position p = (Position) position;
@@ -115,12 +123,38 @@ public class MyGoogleMap {
 
     @Override
     public String toString() {
+        String headRow = "";
+        headRow += "┌─";
+        for (int i = 0; i < width - 1; i++) {
+            headRow += "─┬─";
+        }
+        headRow += "─┐\n";
+
         String mapStr = "";
         for (ArrayList<Character> charList : map) {
-            mapStr += charList.toString();
-            mapStr += "\n";
+
+            String charListStr = charList.toString()
+                    .substring(1, charList.toString().length() - 1)
+                    .replaceAll(", ", "  │  ");
+            mapStr += "│ ";
+            mapStr += charListStr;
+            mapStr += " │\n";
+
+            if (!charList.equals(map.get(height - 1))) {
+                mapStr += "├─";
+                for (int i = 0; i < width - 1; i++) {
+                    mapStr += "─┼─";
+                }
+                mapStr += "─┤\n";
+            } else {
+                mapStr += "└─";
+                for (int i = 0; i < width - 1; i++) {
+                    mapStr +=  "─┴─";
+                }
+                mapStr +=  "─┘\n";
+            }
         }
-        return mapStr;
+        return headRow + mapStr;
     }
 
     public boolean hasOverlappedPositions() {
@@ -131,8 +165,8 @@ public class MyGoogleMap {
             }
         }
 
-        for (Position p : allPositions.toArray()) {
-            if (allPositions.getFrequencyOf(p) > 1) {
+        for (Object p : (Object[]) allPositions.toArray()) {
+            if (allPositions.getFrequencyOf((Position) p) > 1) {
                 return true;
             }
         }

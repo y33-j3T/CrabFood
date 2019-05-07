@@ -1,6 +1,7 @@
 package crabfood;
 
 import crabfood.CrabFoodOperator.CrabFoodOrder;
+import static crabfood.CrabFoodOperator.masterMap;
 import crabfood.Restaurant.Dish;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -84,6 +85,7 @@ public class Main extends Application {
         TextArea txtareaPL = new TextArea();
         txtareaPL.setMinSize(500, 400);
         txtareaPL.setEditable(false);
+        txtareaPL.setText(masterMap.toString());
 
         // Order Status
         TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
@@ -210,7 +212,7 @@ public class Main extends Application {
         // Order Log
         TextArea txtareaOrderLog = new TextArea();
         txtareaOrderLog.setEditable(false);
-        
+
         // Button
         Button btnVOL_BACK = new Button("Back");
         btnVOL_BACK.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -235,13 +237,73 @@ public class Main extends Application {
         // =====================================================================
         // SIMULATE CUSTOMER
         // =====================================================================
-        
 //        sceneSC = new Scene(layoutSC, 1080, 828);
+
         // =====================================================================
         // EDIT RESTAURANT
         // =====================================================================
+        // Restaurant Name
+        Label labelRestaurantName = new Label("Name : ");
+
+        TextArea txtareaRestaurantName = new TextArea();
+        txtareaRestaurantName.setPrefHeight(txtareaRestaurantName.DEFAULT_PREF_ROW_COUNT);
+        txtareaRestaurantName.setPrefWidth(500);
+        txtareaRestaurantName.setPromptText("Enter restaurant name");
         
-//        sceneER = new Scene(layoutER, 1080, 828);
+        // Restaurant Location
+        Label labelRestaurantLoc = new Label("Restaurant Location : ");
+//        txtareaPL.setMinSize(500, 400);
+
+        GridPane gridRestaurantLoc = new GridPane();
+
+        // Dishes
+        Label labelDishes = new Label("Dishes : ");
+
+        Button btnER_EDs = new Button("Edit Dishes");
+        btnER_EDs.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnER_EDs.setOnAction(fn -> window.setScene(sceneEDs));
+
+        // #
+        GridPane layoutERTop = new GridPane();
+        GridPane.setConstraints(labelRestaurantName, 0, 0);
+        GridPane.setConstraints(txtareaRestaurantName, 1, 0);
+        GridPane.setConstraints(labelRestaurantLoc, 0, 1);
+        GridPane.setConstraints(gridRestaurantLoc, 1, 1);
+        GridPane.setConstraints(labelDishes, 0, 2);
+        GridPane.setConstraints(btnER_EDs, 1, 2);
+        GridPane.setHalignment(labelRestaurantName, HPos.RIGHT);
+        GridPane.setHalignment(labelRestaurantLoc, HPos.RIGHT);
+        GridPane.setHalignment(labelDishes, HPos.RIGHT);
+        layoutERTop.setVgap(10);
+        layoutERTop.getChildren().addAll(labelRestaurantName, txtareaRestaurantName,
+                labelRestaurantLoc, gridRestaurantLoc,
+                labelDishes, btnER_EDs);
+        
+        layoutERTop.setAlignment(Pos.CENTER);
+
+        // Button
+        Button btnER_CANCEL = new Button("Cancel");
+        btnER_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnER_CANCEL.setOnAction(fn -> window.setScene(sceneMR));
+
+        Button btnER_DONE = new Button("Done");
+        btnER_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnER_DONE.setOnAction(fn -> window.setScene(sceneMR));
+
+        // #
+        HBox layoutERBottom = new HBox(10, btnER_CANCEL, btnER_DONE);
+        layoutERBottom.setAlignment(Pos.CENTER);
+
+        // ##
+        GridPane layoutER = new GridPane();
+        GridPane.setConstraints(layoutERTop, 0, 0);
+        GridPane.setConstraints(layoutERBottom, 0, 1);
+        GridPane.setVgrow(layoutERTop, Priority.ALWAYS);
+        GridPane.setHgrow(layoutERTop, Priority.ALWAYS);
+        layoutER.setPadding(new Insets(10, 10, 10, 10));
+        layoutER.getChildren().addAll(layoutERTop, layoutERBottom);
+        
+        sceneER = new Scene(layoutER, 1080, 828);
         // =====================================================================
         // EDIT DISHES
         // =====================================================================
@@ -282,14 +344,14 @@ public class Main extends Application {
         layoutEDs.setPadding(new Insets(10, 10, 10, 10));
         layoutEDs.setVgap(10);
         layoutEDs.getChildren().addAll(listDishes, layoutEDsBottom);
-        
+
         sceneEDs = new Scene(layoutEDs, 1080, 828);
         // =====================================================================
         // EDIT DISH
         // =====================================================================
         // Dish Name
         Label labelDishName = new Label("Dish Name : ");
-        
+
         TextArea txtareaDishName = new TextArea();
         txtareaDishName.setPrefHeight(txtareaDishName.DEFAULT_PREF_ROW_COUNT);
         txtareaDishName.setPrefWidth(500);
@@ -297,7 +359,7 @@ public class Main extends Application {
 
         // Dish Prep Time
         Label labelDishPrepTime = new Label("Dish Preparation Time : ");
-        
+
         Spinner spinnerDishPrepTime = new Spinner(1, 60, 5);
         spinnerDishPrepTime.setPrefWidth(500);
         spinnerDishPrepTime.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
@@ -310,7 +372,7 @@ public class Main extends Application {
         GridPane.setConstraints(labelDishPrepTime, 0, 1);
         GridPane.setConstraints(spinnerDishPrepTime, 1, 1);
         GridPane.setHalignment(labelDishName, HPos.RIGHT);
-        
+
         layoutEDTop.setVgap(10);
         layoutEDTop.setHgap(10);
         layoutEDTop.getChildren().addAll(labelDishName, txtareaDishName, labelDishPrepTime, spinnerDishPrepTime);
