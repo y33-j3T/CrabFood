@@ -9,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -258,18 +259,21 @@ public class Main extends Application {
         Label labelRestaurant = new Label("Restaurant : ");
 
         ComboBox comboRestaurant = new ComboBox();
+        comboRestaurant.setPrefSize(450, 10);
 
         // Orders (Dish & Quantity)
         Label labelOrder = new Label("Order : ");
 
         ComboBox comboOrder = new ComboBox();
+        comboOrder.setPrefSize(450, 10);
 
         Label labelQuantity = new Label("Quantity : ");
 
         Spinner spinnerQuantity = new Spinner(1, 20, 1);
+        spinnerQuantity.setPrefSize(450, 10);
 
         Button btnSC_ADD = new Button("Add");
-        btnSC_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnSC_ADD.setPrefSize(75, 75);
 //        btnSC_ADD.setOnAction(fn -> window.setScene(sceneMenu));
 
         // Delivery Location
@@ -284,18 +288,18 @@ public class Main extends Application {
 
         // #
         GridPane layoutSCTopLeft = new GridPane();
-        GridPane.setConstraints(labelCustomerID, 0, 0);
+        GridPane.setConstraints(labelCustomerID, 0, 0, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(txtCustomerID, 1, 0);
-        GridPane.setConstraints(labelOrderTime, 0, 1);
+        GridPane.setConstraints(labelOrderTime, 0, 1, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(txtOrderTime, 1, 1);
-        GridPane.setConstraints(labelRestaurant, 0, 2);
+        GridPane.setConstraints(labelRestaurant, 0, 2, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(comboRestaurant, 1, 2);
-        GridPane.setConstraints(labelOrder, 0, 3);
+        GridPane.setConstraints(labelOrder, 0, 3, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(comboOrder, 1, 3);
-        GridPane.setConstraints(btnSC_ADD, 2, 3);
-        GridPane.setConstraints(labelQuantity, 0, 4);
+        GridPane.setConstraints(btnSC_ADD, 2, 3, 1, 2);
+        GridPane.setConstraints(labelQuantity, 0, 4, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(spinnerQuantity, 1, 4);
-        GridPane.setConstraints(labelDeliveryLoc, 0, 5);
+        GridPane.setConstraints(labelDeliveryLoc, 0, 5, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(coordinateLabels, 1, 5);
         layoutSCTopLeft.getChildren().addAll(labelCustomerID, txtCustomerID,
                 labelOrderTime, txtOrderTime,
@@ -303,6 +307,9 @@ public class Main extends Application {
                 labelOrder, comboOrder, btnSC_ADD,
                 labelQuantity, spinnerQuantity,
                 labelDeliveryLoc, coordinateLabels);
+        layoutSCTopLeft.setVgap(10);
+        layoutSCTopLeft.setHgap(10);
+        layoutSCTopLeft.setAlignment(Pos.CENTER);
         
 
         // Your Orders
@@ -319,6 +326,8 @@ public class Main extends Application {
 
         // #
         VBox layoutSCTopRight = new VBox(10, labelYourOrders, listOrders, btnSC_REMOVE);
+        layoutSCTopRight.setAlignment(Pos.CENTER);
+        VBox.setVgrow(listOrders, Priority.ALWAYS);
         
         // Button
         Button btnSC_DONE = new Button("Done");
@@ -337,6 +346,13 @@ public class Main extends Application {
         GridPane.setConstraints(layoutSCTopLeft, 0, 0);
         GridPane.setConstraints(layoutSCTopRight, 1, 0);
         GridPane.setConstraints(layoutSCBottom, 0, 1, 2, 1);
+        GridPane.setHgrow(layoutSCTopLeft, Priority.ALWAYS);
+        GridPane.setVgrow(layoutSCTopLeft, Priority.ALWAYS);
+        GridPane.setHgrow(layoutSCTopRight, Priority.ALWAYS);
+        GridPane.setVgrow(layoutSCTopRight, Priority.ALWAYS);
+        layoutSC.setVgap(10);
+        layoutSC.setHgap(10);
+        layoutSC.setPadding(new Insets(10, 10, 10, 10));
         layoutSC.getChildren().addAll(layoutSCTopLeft, layoutSCTopRight, layoutSCBottom);
         
         sceneSC = new Scene(layoutSC, 1080, 828);
