@@ -36,18 +36,22 @@ public class MyGoogleMap {
 
             while (s.hasNextLine()) {
                 String nextLine = s.nextLine();
+                nextLine = nextLine.replaceFirst("0*$", "");
 
-                height++;
-                if (width < nextLine.length()) {
-                    width = nextLine.length();
+                if(!nextLine.isEmpty()){
+                    height++;
+                    
+                    if (width < nextLine.length()) {
+                        width = nextLine.length();
+                    }
+
+                    ArrayList<Character> charList = new ArrayList<>();
+                    for (Character ch : nextLine.toCharArray()) {
+                        charList.add(ch);
+                    }
+
+                    map.add(charList);
                 }
-
-                ArrayList<Character> charList = new ArrayList<>();
-                for (Character ch : nextLine.toCharArray()) {
-                    charList.add(ch);
-                }
-
-                map.add(charList);
             }
 
             if (!map.isEmpty()) {
@@ -93,14 +97,14 @@ public class MyGoogleMap {
         }
         width = max_posX + 1;
         height = max_posY + 1;
-
+        
         // make new map
         map = new ArrayList<>();
         Character[] arr = new Character[width];
         ArrayList<Character> myList = new ArrayList<>(Arrays.asList(arr));
         Collections.fill(myList, '0');
         for (int i = 0; i < height; i++) {
-            map.add(myList);
+            map.add((ArrayList<Character>) myList.clone());
         }
 
         for (Restaurant restaurant : partnerRestaurants) {
@@ -109,11 +113,12 @@ public class MyGoogleMap {
                 map.get(p.getPosY()).set(p.getPosX(), restaurant.getMapSymbol());
             }
         }
-
+        
         // rewrite "map.txt"
         try {
-            pw = new PrintWriter(new FileOutputStream("map.txt"));
-            pw.print(map.toString());
+            pw = new PrintWriter(new FileOutputStream("crabfood-io/map.txt"));
+            System.out.println(this.toString());
+            pw.print(this.toString());
         } catch (FileNotFoundException ex) {
             System.out.println("\"map.txt\" not found.");
         } finally {
@@ -123,38 +128,15 @@ public class MyGoogleMap {
 
     @Override
     public String toString() {
-        String headRow = "";
-        headRow += "┌─";
-        for (int i = 0; i < width - 1; i++) {
-            headRow += "─┬─";
-        }
-        headRow += "─┐\n";
 
         String mapStr = "";
         for (ArrayList<Character> charList : map) {
-
-            String charListStr = charList.toString()
+            mapStr += charList.toString()
                     .substring(1, charList.toString().length() - 1)
-                    .replaceAll(", ", "  │  ");
-            mapStr += "│ ";
-            mapStr += charListStr;
-            mapStr += " │\n";
-
-            if (!charList.equals(map.get(height - 1))) {
-                mapStr += "├─";
-                for (int i = 0; i < width - 1; i++) {
-                    mapStr += "─┼─";
-                }
-                mapStr += "─┤\n";
-            } else {
-                mapStr += "└─";
-                for (int i = 0; i < width - 1; i++) {
-                    mapStr +=  "─┴─";
-                }
-                mapStr +=  "─┘\n";
-            }
+                    .replaceAll(", ", "");
+            mapStr += "\n";
         }
-        return headRow + mapStr;
+        return mapStr;
     }
 
     public boolean hasOverlappedPositions() {
@@ -171,6 +153,26 @@ public class MyGoogleMap {
             }
         }
         return false;
+    }
+
+    public Character getSymbolAt(int posX, int posY) {
+        return map.get(posY).get(posX);
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     public ArrayList<ArrayList<Character>> getMap() {

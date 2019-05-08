@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -22,9 +23,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Box;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -237,8 +244,102 @@ public class Main extends Application {
         // =====================================================================
         // SIMULATE CUSTOMER
         // =====================================================================
-//        sceneSC = new Scene(layoutSC, 1080, 828);
+        // Customer ID
+        Label labelCustomerID = new Label("Customer ID : ");
 
+        Text txtCustomerID = new Text("999");
+
+        // Order Time
+        Label labelOrderTime = new Label("Order Time : ");
+
+        Text txtOrderTime = new Text("10:30");
+
+        // Restaurant
+        Label labelRestaurant = new Label("Restaurant : ");
+
+        ComboBox comboRestaurant = new ComboBox();
+
+        // Orders (Dish & Quantity)
+        Label labelOrder = new Label("Order : ");
+
+        ComboBox comboOrder = new ComboBox();
+
+        Label labelQuantity = new Label("Quantity : ");
+
+        Spinner spinnerQuantity = new Spinner(1, 20, 1);
+
+        Button btnSC_ADD = new Button("Add");
+        btnSC_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//        btnSC_ADD.setOnAction(fn -> window.setScene(sceneMenu));
+
+        // Delivery Location
+        Label labelDeliveryLoc = new Label("Delivery Location : ");
+        Label labelX = new Label("X : ");
+        Spinner spinnerX = new Spinner(1, 100, 1);
+        Label labelY = new Label("Y : ");
+        Spinner spinnerY = new Spinner(1, 100, 1);
+
+        HBox coordinateLabels = new HBox(10, labelX, spinnerX, labelY, spinnerY);
+        coordinateLabels.setAlignment(Pos.CENTER);
+
+        // #
+        GridPane layoutSCTopLeft = new GridPane();
+        GridPane.setConstraints(labelCustomerID, 0, 0);
+        GridPane.setConstraints(txtCustomerID, 1, 0);
+        GridPane.setConstraints(labelOrderTime, 0, 1);
+        GridPane.setConstraints(txtOrderTime, 1, 1);
+        GridPane.setConstraints(labelRestaurant, 0, 2);
+        GridPane.setConstraints(comboRestaurant, 1, 2);
+        GridPane.setConstraints(labelOrder, 0, 3);
+        GridPane.setConstraints(comboOrder, 1, 3);
+        GridPane.setConstraints(btnSC_ADD, 2, 3);
+        GridPane.setConstraints(labelQuantity, 0, 4);
+        GridPane.setConstraints(spinnerQuantity, 1, 4);
+        GridPane.setConstraints(labelDeliveryLoc, 0, 5);
+        GridPane.setConstraints(coordinateLabels, 1, 5);
+        layoutSCTopLeft.getChildren().addAll(labelCustomerID, txtCustomerID,
+                labelOrderTime, txtOrderTime,
+                labelRestaurant, comboRestaurant,
+                labelOrder, comboOrder, btnSC_ADD,
+                labelQuantity, spinnerQuantity,
+                labelDeliveryLoc, coordinateLabels);
+        
+
+        // Your Orders
+        Label labelYourOrders = new Label("Your orders");
+
+        ListView listOrders = new ListView();
+        listOrders.getItems().add("Order 1");
+        listOrders.getItems().add("Order 2");
+        listOrders.getItems().add("Order 3");
+
+        Button btnSC_REMOVE = new Button("Remove");
+        btnSC_REMOVE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//        btnSC_REMOVE.setOnAction(fn -> window.setScene(sceneMenu));
+
+        // #
+        VBox layoutSCTopRight = new VBox(10, labelYourOrders, listOrders, btnSC_REMOVE);
+        
+        // Button
+        Button btnSC_DONE = new Button("Done");
+        btnSC_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnSC_DONE.setOnAction(fn -> window.setScene(sceneMenu));
+
+        Button btnSC_CANCEL = new Button("Cancel");
+        btnSC_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnSC_CANCEL.setOnAction(fn -> window.setScene(sceneMenu));
+
+        // #
+        HBox layoutSCBottom = new HBox(10, btnSC_CANCEL, btnSC_DONE);
+        layoutSCBottom.setAlignment(Pos.CENTER);
+
+        GridPane layoutSC = new GridPane();
+        GridPane.setConstraints(layoutSCTopLeft, 0, 0);
+        GridPane.setConstraints(layoutSCTopRight, 1, 0);
+        GridPane.setConstraints(layoutSCBottom, 0, 1, 2, 1);
+        layoutSC.getChildren().addAll(layoutSCTopLeft, layoutSCTopRight, layoutSCBottom);
+        
+        sceneSC = new Scene(layoutSC, 1080, 828);
         // =====================================================================
         // EDIT RESTAURANT
         // =====================================================================
@@ -249,12 +350,22 @@ public class Main extends Application {
         txtareaRestaurantName.setPrefHeight(txtareaRestaurantName.DEFAULT_PREF_ROW_COUNT);
         txtareaRestaurantName.setPrefWidth(500);
         txtareaRestaurantName.setPromptText("Enter restaurant name");
-        
+
         // Restaurant Location
         Label labelRestaurantLoc = new Label("Restaurant Location : ");
-//        txtareaPL.setMinSize(500, 400);
 
         GridPane gridRestaurantLoc = new GridPane();
+        gridRestaurantLoc.setPrefSize(700, 600);
+        gridRestaurantLoc.setMaxSize(700, 600);
+        for (int i = 0; i < masterMap.getWidth(); i++) {
+            for (int j = 0; j < masterMap.getHeight(); j++) {
+                Tile tile = new Tile(String.valueOf(masterMap.getSymbolAt(i, j)));
+                GridPane.setConstraints(tile, i, j);
+                gridRestaurantLoc.getChildren().addAll(tile);
+            }
+        }
+        ScrollPane gridPad = new ScrollPane(gridRestaurantLoc);
+        gridPad.setMaxSize(700, 600);
 
         // Dishes
         Label labelDishes = new Label("Dishes : ");
@@ -268,7 +379,7 @@ public class Main extends Application {
         GridPane.setConstraints(labelRestaurantName, 0, 0);
         GridPane.setConstraints(txtareaRestaurantName, 1, 0);
         GridPane.setConstraints(labelRestaurantLoc, 0, 1);
-        GridPane.setConstraints(gridRestaurantLoc, 1, 1);
+        GridPane.setConstraints(gridPad, 1, 1);
         GridPane.setConstraints(labelDishes, 0, 2);
         GridPane.setConstraints(btnER_EDs, 1, 2);
         GridPane.setHalignment(labelRestaurantName, HPos.RIGHT);
@@ -276,19 +387,19 @@ public class Main extends Application {
         GridPane.setHalignment(labelDishes, HPos.RIGHT);
         layoutERTop.setVgap(10);
         layoutERTop.getChildren().addAll(labelRestaurantName, txtareaRestaurantName,
-                labelRestaurantLoc, gridRestaurantLoc,
+                labelRestaurantLoc, gridPad,
                 labelDishes, btnER_EDs);
-        
+
         layoutERTop.setAlignment(Pos.CENTER);
 
         // Button
-        Button btnER_CANCEL = new Button("Cancel");
-        btnER_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnER_CANCEL.setOnAction(fn -> window.setScene(sceneMR));
-
         Button btnER_DONE = new Button("Done");
         btnER_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnER_DONE.setOnAction(fn -> window.setScene(sceneMR));
+
+        Button btnER_CANCEL = new Button("Cancel");
+        btnER_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnER_CANCEL.setOnAction(fn -> window.setScene(sceneMR));
 
         // #
         HBox layoutERBottom = new HBox(10, btnER_CANCEL, btnER_DONE);
@@ -302,7 +413,7 @@ public class Main extends Application {
         GridPane.setHgrow(layoutERTop, Priority.ALWAYS);
         layoutER.setPadding(new Insets(10, 10, 10, 10));
         layoutER.getChildren().addAll(layoutERTop, layoutERBottom);
-        
+
         sceneER = new Scene(layoutER, 1080, 828);
         // =====================================================================
         // EDIT DISHES
@@ -383,8 +494,12 @@ public class Main extends Application {
         btnED_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnED_DONE.setOnAction(fn -> window.setScene(sceneEDs));
 
+        Button btnED_CANCEL = new Button("Cancel");
+        btnED_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnED_CANCEL.setOnAction(fn -> window.setScene(sceneEDs));
+
         // #
-        HBox layoutEDBottom = new HBox(btnED_DONE);
+        HBox layoutEDBottom = new HBox(10, btnED_CANCEL, btnED_DONE);
         layoutEDBottom.setAlignment(Pos.CENTER);
 
         // ##
@@ -403,6 +518,21 @@ public class Main extends Application {
         window.setScene(sceneMenu);
         window.setTitle("CrabFood");
         window.show();
+    }
+
+    private class Tile extends StackPane {
+
+        public Tile(String value) {
+            Rectangle border = new Rectangle(50, 50);
+            border.setFill(null);
+            border.setStroke(Color.BLACK);
+
+            Text text = new Text(value);
+            text.setFont(Font.font(30));
+
+            setAlignment(Pos.CENTER);
+            getChildren().addAll(border, text);
+        }
     }
 
 }

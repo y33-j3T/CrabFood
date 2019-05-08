@@ -77,8 +77,7 @@ class CrabFoodOperator {
          * "partner-restaurant.txt" or in case of corrupted "map.txt"
          */
         masterMap = new MyGoogleMap();
-        System.out.println(masterMap);
-//        masterMap.updateMap();
+        masterMap.updateMap();
 
         // load previously saved "delivery-guy.txt"
         try {
