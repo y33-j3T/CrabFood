@@ -1,15 +1,19 @@
 0
-Burger Krusty
-The Klogger
+Burger Krusty 
+The Klogger 5
+0 0
 
 13
 Crusty Crab
 Crabby Meal
+5 5
 
 15
 Crusty Crab
-Crabby Meal
+Crabby Meal 3
+0 5
 
 15
 Phum Bucket
-Phum Pie
+Phum Pie 4
+5 0

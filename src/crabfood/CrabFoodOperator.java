@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -139,33 +140,34 @@ class CrabFoodOperator {
 
                 // read dish orders & quantity
                 HashMap<Dish, Integer> dishOrders = new HashMap<>();
+                
+                // read delivery location
+                Position deliveryLocation = new Position();
+                
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
-                    if (Pattern.matches("^(\\s)*[A-Za-z]+((\\s)+[A-Za-z]+)*(\\s)+[0-9]+(\\s)*$", input)) {
+                    if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+((\\s)+[0-9]+(\\s)*)$", input)) {
                         String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
                         int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
 
                         dishOrders.put(new Restaurant(restaurant).new Dish(dishName), quanitity);
-                    } else if (Pattern.matches("^(\\s)*[A-Za-z]+((\\s)+[A-Za-z]+)*$", input)) {
+                    } else if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+", input)) {
                         dishOrders.put(new Restaurant(restaurant).new Dish(input.trim()), 1);
-                    } else {
-                        break;
-                    }
-                }
-                
-                // read delivery location
-                Position deliveryLocation = new Position();
-                while (s.hasNextLine()) {
-                    String input = s.nextLine();
-                    if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
+                    } else if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
                         int posY = Integer.parseInt(coordinateStr[1]);
                         deliveryLocation.setPosition(posX, posY);
-                    } else if (input.isEmpty()){
+                    } else if (input.isEmpty()) {
                         break;
                     }
-                }
+                }                
+                
+                crabFoodOrder.setOrderTime(orderTime);
+                crabFoodOrder.setRestaurant(new Restaurant(restaurant));
+                crabFoodOrder.setDishOrders(dishOrders);
+                crabFoodOrder.setDeliveryLocation(deliveryLocation);
+                System.out.println(crabFoodOrder);
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
@@ -223,6 +225,19 @@ class CrabFoodOperator {
         public CrabFoodOrder() {
             CrabFoodOrder.customerId++;
             this.orderTime = clock.getTime();
+        }
+
+        @Override
+        public String toString() {
+            String result = "";
+            result += orderTime + "\n";
+            result += restaurant.getName() + "\n";
+            for (Map.Entry<Dish, Integer> entry : dishOrders.entrySet()) {
+                result += entry.getKey().getName() + " ";
+                result += entry.getValue() + "\n";
+            }
+            result += deliveryLocation + "\n";
+            return result;
         }
 
         public static int getCustomerId() {
