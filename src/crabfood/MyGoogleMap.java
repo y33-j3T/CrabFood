@@ -28,7 +28,7 @@ public class MyGoogleMap {
     }
 
     /**
-     * get saved map from "map.txt"
+     * load previously saved "map.txt"
      */
     public void readMap() {
         try {

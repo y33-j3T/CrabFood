@@ -1,9 +1,17 @@
 package crabfood;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class SimulatedTime {
 
-    private int hour = 0;
-    private int minute = 0;
+    private static int hour = 0;
+    private static int minute = 0;
+
+    public SimulatedTime() {
+        this.hour = 0;
+        this.minute = 0;
+    }
 
     public SimulatedTime(int hour, int minute) {
         this.hour = hour;
@@ -25,11 +33,17 @@ public class SimulatedTime {
     public void setMinute(int minute) {
         this.minute = minute;
     }
-    
+
     public void tick() {
-        if (minute==59) {
-            if (hour==23) {
-                hour=0;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(SimulatedTime.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (minute == 59) {
+            if (hour == 23) {
+                hour = 0;
             } else {
                 hour++;
             }

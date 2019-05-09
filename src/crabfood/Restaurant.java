@@ -68,18 +68,18 @@ class Restaurant {
     class restaurantOrder {
 
         private HashMap<Dish, Integer> restaurantOrders;
-        private SimulatedTime orderTime;
+        private String orderTime;
 
-        public restaurantOrder(HashMap<Dish, Integer> restaurantOrders, SimulatedTime orderTime) {
+        public restaurantOrder(HashMap<Dish, Integer> restaurantOrders, String orderTime) {
             this.restaurantOrders = restaurantOrders;
             this.orderTime = orderTime;
         }
 
-        public SimulatedTime getOrderTime() {
+        public String getOrderTime() {
             return orderTime;
         }
 
-        public void setOrderTime(SimulatedTime orderTime) {
+        public void setOrderTime(String orderTime) {
             this.orderTime = orderTime;
         }
 

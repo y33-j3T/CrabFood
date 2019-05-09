@@ -36,10 +36,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-//    
+
+    public static SimulatedTime clock = new SimulatedTime();
+    public static CrabFoodOperator operator = new CrabFoodOperator();
 
     public static void main(String[] args) {
-        CrabFoodOperator operator = new CrabFoodOperator();
         launch(args);
 
         /**
@@ -99,7 +100,7 @@ public class Main extends Application {
         TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
         colCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
 
-        TableColumn<CrabFoodOrder, SimulatedTime> colOrderTime = new TableColumn<>("Order Time");
+        TableColumn<CrabFoodOrder, String> colOrderTime = new TableColumn<>("Order Time");
         colOrderTime.setCellValueFactory(new PropertyValueFactory<>("orderTime"));
 
         TableColumn<CrabFoodOrder, Restaurant> colRestaurant = new TableColumn<>("Restaurant");
@@ -310,7 +311,6 @@ public class Main extends Application {
         layoutSCTopLeft.setVgap(10);
         layoutSCTopLeft.setHgap(10);
         layoutSCTopLeft.setAlignment(Pos.CENTER);
-        
 
         // Your Orders
         Label labelYourOrders = new Label("Your orders");
@@ -328,7 +328,7 @@ public class Main extends Application {
         VBox layoutSCTopRight = new VBox(10, labelYourOrders, listOrders, btnSC_REMOVE);
         layoutSCTopRight.setAlignment(Pos.CENTER);
         VBox.setVgrow(listOrders, Priority.ALWAYS);
-        
+
         // Button
         Button btnSC_DONE = new Button("Done");
         btnSC_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -354,7 +354,7 @@ public class Main extends Application {
         layoutSC.setHgap(10);
         layoutSC.setPadding(new Insets(10, 10, 10, 10));
         layoutSC.getChildren().addAll(layoutSCTopLeft, layoutSCTopRight, layoutSCBottom);
-        
+
         sceneSC = new Scene(layoutSC, 1080, 828);
         // =====================================================================
         // EDIT RESTAURANT
