@@ -34,7 +34,9 @@ class CrabFoodOperator {
         CrabFoodOperator.allDeliveryGuys = new ArrayList<>();
         readAllDeliveryGuys();
 
+        // set all Crabfood orders
         CrabFoodOperator.allCrabFoodOrders = new ArrayBag<>();
+        readAllCrabFoodOrders();
 
         // populate txt for restaurant, crabfood orders and delivery guys
     }
@@ -127,31 +129,41 @@ class CrabFoodOperator {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/crabfood-order.txt"));
 
             while (s.hasNextLine()) {
-                Restaurant restaurant = new Restaurant();
+                CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
 
-                // read restaurant name
-                String restaurantName = s.nextLine();
+                // read order time
+                String orderTime = SimulatedTime.parseTime(s.nextLine());
 
-                // read restaurant map symbol
-                Character restaurantMapSymbol = restaurantName.charAt(0);
+                // read restaurant
+                String restaurant = s.nextLine();
 
-                // read restaurant positions & dishes
-                ArrayList<Position> restaurantPositions = new ArrayList<>();
-                ArrayList<Dish> dishes = new ArrayList<>();
+                // read dish orders & quantity
+                HashMap<Dish, Integer> dishOrders = new HashMap<>();
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
+                    if (Pattern.matches("^(\\s)*[A-Za-z]+((\\s)+[A-Za-z]+)*(\\s)+[0-9]+(\\s)*$", input)) {
+                        String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
+                        int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
 
+                        dishOrders.put(new Restaurant(restaurant).new Dish(dishName), quanitity);
+                    } else if (Pattern.matches("^(\\s)*[A-Za-z]+((\\s)+[A-Za-z]+)*$", input)) {
+                        dishOrders.put(new Restaurant(restaurant).new Dish(input.trim()), 1);
+                    } else {
+                        break;
+                    }
+                }
+                
+                // read delivery location
+                Position deliveryLocation = new Position();
+                while (s.hasNextLine()) {
+                    String input = s.nextLine();
                     if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
                         int posY = Integer.parseInt(coordinateStr[1]);
-                        restaurantPositions.add(new Position(posX, posY));
-                    } else {
-                        if (!input.isEmpty()) {
-                            dishes.add(restaurant.new Dish(input, Integer.parseInt(s.nextLine())));
-                        } else {
-                            break;
-                        }
+                        deliveryLocation.setPosition(posX, posY);
+                    } else if (input.isEmpty()){
+                        break;
                     }
                 }
             }
@@ -201,11 +213,16 @@ class CrabFoodOperator {
         private Position deliveryLocation;
 
         public CrabFoodOrder(Restaurant restaurant, HashMap<Dish, Integer> dishOrders, Position deliveryLocation) {
-            this.customerId++;
-            this.orderTime = clock.toString();
+            CrabFoodOrder.customerId++;
+            this.orderTime = clock.getTime();
             this.restaurant = restaurant;
             this.dishOrders = dishOrders;
             this.deliveryLocation = deliveryLocation;
+        }
+
+        public CrabFoodOrder() {
+            CrabFoodOrder.customerId++;
+            this.orderTime = clock.getTime();
         }
 
         public static int getCustomerId() {

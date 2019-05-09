@@ -17,6 +17,10 @@ class Restaurant {
         this.name = "name not set";
     }
 
+    public Restaurant(String name) {
+        this.name = name;
+    }
+    
     public Restaurant(Character mapSymbol, String name, ArrayList<Position> positions, ArrayList<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
         this.mapSymbol = mapSymbol;
         this.name = name;
@@ -102,6 +106,10 @@ class Restaurant {
             this.foodPrepareDuration = foodPrepareDuration;
         }
 
+        public Dish(String name) {
+            this.name = name;
+            
+        }
         public String getName() {
             return name;
         }

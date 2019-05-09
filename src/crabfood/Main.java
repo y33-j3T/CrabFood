@@ -37,10 +37,12 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    public static SimulatedTime clock = new SimulatedTime();
+    public static SimulatedTime clock = new SimulatedTime(23, 15);
     public static CrabFoodOperator operator = new CrabFoodOperator();
 
     public static void main(String[] args) {
+        System.out.println(clock.getTimeAfter(5, 46));
+        System.out.println(SimulatedTime.parseTime("0:1"));
         launch(args);
 
         /**

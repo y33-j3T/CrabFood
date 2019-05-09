@@ -196,6 +196,11 @@ public class MyGoogleMap {
         private int posX;
         private int posY;
 
+        public Position() {
+            this.posX = -1;
+            this.posY = -1;
+        }
+        
         public Position(int posX, int posY) {
             this.posX = posX;
             this.posY = posY;
