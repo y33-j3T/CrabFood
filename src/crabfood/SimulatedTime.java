@@ -6,17 +6,17 @@ import java.util.regex.Pattern;
 
 public class SimulatedTime {
 
-    private static int hour = 0;
-    private static int minute = 0;
+    private volatile static int hour = 0;
+    private volatile static int minute = 0;
 
     public SimulatedTime() {
-        this.hour = 0;
-        this.minute = 0;
+        SimulatedTime.hour = 0;
+        SimulatedTime.minute = 0;
     }
 
     public SimulatedTime(int hour, int minute) {
-        this.hour = hour;
-        this.minute = minute;
+        SimulatedTime.hour = hour;
+        SimulatedTime.minute = minute;
     }
 
     public int getHour() {
@@ -24,7 +24,7 @@ public class SimulatedTime {
     }
 
     public void setHour(int hour) {
-        this.hour = hour;
+        SimulatedTime.hour = hour;
     }
 
     public int getMinute() {
@@ -32,18 +32,16 @@ public class SimulatedTime {
     }
 
     public void setMinute(int minute) {
-        this.minute = minute;
+        SimulatedTime.minute = minute;
     }
 
     public void tick() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(SimulatedTime.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
         if (minute == 59) {
-            hour = hour == 23 ? 0 : hour++;
+            if (hour == 23) {
+                hour = 0;
+            } else {
+                hour++;
+            }
             minute = 0;
         } else {
             minute++;

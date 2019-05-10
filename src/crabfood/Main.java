@@ -2,8 +2,19 @@ package crabfood;
 
 import crabfood.CrabFoodOperator.CrabFoodOrder;
 import static crabfood.CrabFoodOperator.masterMap;
+import static crabfood.CrabFoodOperator.partnerRestaurants;
+import crabfood.MyGoogleMap.Position;
 import crabfood.Restaurant.Dish;
+import java.util.HashMap;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -34,15 +45,14 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javax.naming.Binding;
 
 public class Main extends Application {
 
-    public static SimulatedTime clock = new SimulatedTime(23, 15);
+    public volatile static SimulatedTime clock = new SimulatedTime();
     public static CrabFoodOperator operator = new CrabFoodOperator();
 
     public static void main(String[] args) {
-        System.out.println(clock.getTimeAfter(5, 46));
-        System.out.println(SimulatedTime.parseTime("0:1"));
         launch(args);
 
         /**
@@ -67,27 +77,85 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Stage window = primaryStage;
 
-        // =====================================================================
+        Thread timeThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                Runnable updater = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        clock.tick();
+                    }
+                };
+
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                    }
+
+                    // UI update is run on the Application thread
+                    Platform.runLater(updater);
+                }
+            }
+
+        });
+        timeThread.setDaemon(true);
+        timeThread.start();
+
         // MENU
-        // =====================================================================
+        makeSceneMenu(primaryStage);
+
+        // MANAGE RESTAURANT
+        makeSceneMR(primaryStage);
+
+        // MANAGE DELIVERY
+        makeSceneMD(primaryStage);
+
+        // VIEW ORDER LOG
+        makeSceneVOL(primaryStage);
+
+        // SIMULATE CUSTOMER
+        makeSceneSC(primaryStage);
+
+        // EDIT RESTAURANT
+        makeSceneER(primaryStage);
+
+        // EDIT DISHES
+        makeSceneEDs(primaryStage);
+
+        // EDIT DISH
+        makeSceneED(primaryStage);
+
+        // primary stage property
+        primaryStage.setMinHeight(876);
+        primaryStage.setMinWidth(802);
+        primaryStage.setScene(sceneMenu);
+        primaryStage.setTitle("CrabFood");
+//        primaryStage.setOnCloseRequest(fn -> {});
+        primaryStage.show();
+
+    }
+
+    private void makeSceneMenu(Stage primaryStage) {
         // Manage Restaurants, Manage Delivery, View Order Log
         Button btnMR = new Button("Manage Restaurants");
         btnMR.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR.setOnAction(fn -> window.setScene(sceneMR));
+        btnMR.setOnAction(fn -> primaryStage.setScene(sceneMR));
 
         Button btnMD = new Button("Manage Delivery");
         btnMD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMD.setOnAction(fn -> window.setScene(sceneMD));
+        btnMD.setOnAction(fn -> primaryStage.setScene(sceneMD));
 
         Button btnVOL = new Button("View Order Log");
         btnVOL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnVOL.setOnAction(fn -> window.setScene(sceneVOL));
+        btnVOL.setOnAction(fn -> primaryStage.setScene(sceneVOL));
 
         Button btnSC = new Button("Simulate Customer");
         btnSC.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnSC.setOnAction(fn -> window.setScene(sceneSC));
+        btnSC.setOnAction(fn -> primaryStage.setScene(sceneSC));
 
         // #
         VBox layoutMenuLeft = new VBox(10, btnMR, btnMD, btnVOL, btnSC);
@@ -139,10 +207,9 @@ public class Main extends Application {
         layoutMenu.getChildren().addAll(layoutMenuLeft, layoutMenuRight);
 
         sceneMenu = new Scene(layoutMenu, 1080, 828);
+    }
 
-        // =====================================================================
-        // MANAGE RESTAURANT
-        // =====================================================================
+    private void makeSceneMR(Stage primaryStage) {
         // Restaurant List
         ListView listRestaurant = new ListView();
         listRestaurant.getItems().add("restaurant 1");
@@ -152,20 +219,20 @@ public class Main extends Application {
         // Buttons
         Button btnMR_EDIT = new Button("Edit");
         btnMR_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_EDIT.setOnAction(fn -> window.setScene(sceneER));
+        btnMR_EDIT.setOnAction(fn -> primaryStage.setScene(sceneER));
 //        ObservableList selectedIndices = listView.getSelectionModel().getSelectedIndices();
 
         Button btnMR_DELETE = new Button("Delete");
         btnMR_DELETE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnMR_EDIT.setOnAction(fn -> window.setScene(sceneED));
+//        btnMR_EDIT.setOnAction(fn -> primaryStage.setScene(sceneED));
 
         Button btnMR_ADD = new Button("Add");
         btnMR_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_ADD.setOnAction(fn -> window.setScene(sceneER));
+        btnMR_ADD.setOnAction(fn -> primaryStage.setScene(sceneER));
 
         Button btnMR_DONE = new Button("Done");
         btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_DONE.setOnAction(fn -> window.setScene(sceneMenu));
+        btnMR_DONE.setOnAction(fn -> primaryStage.setScene(sceneMenu));
 
         // #
         HBox layoutMRBottom = new HBox(10, btnMR_EDIT, btnMR_DELETE, btnMR_ADD, btnMR_DONE);
@@ -182,10 +249,9 @@ public class Main extends Application {
         layoutMR.getChildren().addAll(listRestaurant, layoutMRBottom);
 
         sceneMR = new Scene(layoutMR, 1080, 828);
+    }
 
-        // =====================================================================
-        // MANAGE DELIVERY
-        // =====================================================================
+    private void makeSceneMD(Stage primaryStage) {
         // Number of Delivery Man
         Label labelNumDeliveryMan = new Label("Number of Delivery Man : ");
 
@@ -200,7 +266,7 @@ public class Main extends Application {
         // Button
         Button btnMD_DONE = new Button("Done");
         btnMD_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMD_DONE.setOnAction(fn -> window.setScene(sceneMenu));
+        btnMD_DONE.setOnAction(fn -> primaryStage.setScene(sceneMenu));
 
         // #
         HBox layoutMDBottom = new HBox(btnMD_DONE);
@@ -216,10 +282,9 @@ public class Main extends Application {
         layoutMD.getChildren().addAll(layoutMDTop, layoutMDBottom);
 
         sceneMD = new Scene(layoutMD, 1080, 828);
+    }
 
-        // =====================================================================
-        // VIEW ORDER LOG
-        // =====================================================================
+    private void makeSceneVOL(Stage primaryStage) {
         // Order Log
         TextArea txtareaOrderLog = new TextArea();
         txtareaOrderLog.setEditable(false);
@@ -227,7 +292,7 @@ public class Main extends Application {
         // Button
         Button btnVOL_BACK = new Button("Back");
         btnVOL_BACK.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnVOL_BACK.setOnAction(fn -> window.setScene(sceneMenu));
+        btnVOL_BACK.setOnAction(fn -> primaryStage.setScene(sceneMenu));
 
         // #
         HBox layoutVOLBottom = new HBox(btnVOL_BACK);
@@ -244,47 +309,161 @@ public class Main extends Application {
         layoutVOL.getChildren().addAll(txtareaOrderLog, layoutVOLBottom);
 
         sceneVOL = new Scene(layoutVOL, 1080, 828);
+    }
 
-        // =====================================================================
-        // SIMULATE CUSTOMER
-        // =====================================================================
+    private void makeSceneSC(Stage primaryStage) {
+        // Ordered dish & its quantity to be put into tableSC
+        ObservableMap<String, Integer> mapSC = FXCollections.observableHashMap();
+        ObservableList<String> mapSCkeys = FXCollections.observableArrayList();
+
+        mapSC.addListener((MapChangeListener.Change<? extends String, ? extends Integer> change) -> {
+            boolean removed = change.wasRemoved();
+            if (removed != change.wasAdded()) {
+                // no put for existing key
+                if (removed) {
+                    mapSCkeys.remove(change.getKey());
+                } else {
+                    mapSCkeys.add(change.getKey());
+                }
+            }
+        });
+
+        // Your Orders
+        Label labelYourOrders = new Label("Your orders");
+        // 
+        TableColumn<String, String> colSCDish = new TableColumn<>("Dish");
+        colSCDish.setCellValueFactory(cd -> Bindings.createStringBinding(() -> cd.getValue()));
+
+        TableColumn<String, Integer> colSCQuantity = new TableColumn<>("Quantity");
+        colSCQuantity.setCellValueFactory(cd -> Bindings.valueAt(mapSC, cd.getValue()));
+
+        TableView<String> tableSC = new TableView<>(mapSCkeys);
+        tableSC.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableSC.getColumns().setAll(colSCDish, colSCQuantity);
+        //
+        Button btnSC_REMOVE = new Button("Remove");
+        btnSC_REMOVE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnSC_REMOVE.setOnAction(fn -> {
+            mapSC.remove(tableSC.getSelectionModel().getSelectedItem());
+        });
+
+        // #
+        VBox layoutSCTopRight = new VBox(10, labelYourOrders, tableSC, btnSC_REMOVE);
+        layoutSCTopRight.setAlignment(Pos.CENTER);
+        VBox.setVgrow(tableSC, Priority.ALWAYS);
+
         // Customer ID
         Label labelCustomerID = new Label("Customer ID : ");
 
-        Text txtCustomerID = new Text("999");
+        Text txtCustomerID = new Text(String.valueOf(CrabFoodOrder.getCustomerId() + 1));
 
         // Order Time
         Label labelOrderTime = new Label("Order Time : ");
 
-        Text txtOrderTime = new Text("10:30");
+        Text txtOrderTime = new Text();
+        Thread txtOrderTimeThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                Runnable updater = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        txtOrderTime.setText(clock.getTime());
+                    }
+                };
+
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                    }
+
+                    // UI update is run on the Application thread
+                    Platform.runLater(updater);
+                }
+            }
+
+        });
+        txtOrderTimeThread.setDaemon(true);
+        txtOrderTimeThread.start();
 
         // Restaurant
         Label labelRestaurant = new Label("Restaurant : ");
 
         ComboBox comboRestaurant = new ComboBox();
+        comboRestaurant.setPromptText("Pick a restaurant");
         comboRestaurant.setPrefSize(450, 10);
+        for (Restaurant restaurant : partnerRestaurants) {
+            comboRestaurant.getItems().add(restaurant.getName());
+        }
 
-        // Orders (Dish & Quantity)
-        Label labelOrder = new Label("Order : ");
+        // Dish & Quantity
+        Label labelDish = new Label("Dish : ");
 
-        ComboBox comboOrder = new ComboBox();
-        comboOrder.setPrefSize(450, 10);
+        ComboBox comboDish = new ComboBox();
+        comboDish.setPromptText("Pick a dish");
+        comboDish.setPrefSize(450, 10);
 
         Label labelQuantity = new Label("Quantity : ");
 
         Spinner spinnerQuantity = new Spinner(1, 20, 1);
+        spinnerQuantity.setEditable(true);
         spinnerQuantity.setPrefSize(450, 10);
 
         Button btnSC_ADD = new Button("Add");
         btnSC_ADD.setPrefSize(75, 75);
-//        btnSC_ADD.setOnAction(fn -> window.setScene(sceneMenu));
+        btnSC_ADD.setOnAction(fn -> {
+            if (comboDish.getValue() != null) {
+                mapSC.put(comboDish.getValue().toString(),
+                        Integer.parseInt(spinnerQuantity.getValue().toString()));
+            }
+        });
+
+        // listeners
+        comboRestaurant.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // reset dish
+                if (comboRestaurant.getSelectionModel().getSelectedItem() != null) {
+                    for (Restaurant restaurant : partnerRestaurants) {
+                        if (comboRestaurant.getSelectionModel().getSelectedItem().toString().equals(restaurant.getName())) {
+                            comboDish.getItems().clear();
+                            for (Dish dish : restaurant.getAllAvailableDishes()) {
+                                comboDish.getItems().add(dish.getName());
+                            }
+                        }
+                    }
+                }
+
+                //reset spinner
+                spinnerQuantity.getValueFactory().setValue(1);
+
+                //clear order hash map
+                mapSC.clear();
+            }
+        });
+
+        comboDish.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                //reset spinner
+                if (mapSC.containsKey(comboDish.getSelectionModel().getSelectedItem())) {
+                    spinnerQuantity.getValueFactory().setValue(mapSC.get(comboDish.getSelectionModel().getSelectedItem()));
+                } else {
+                    spinnerQuantity.getValueFactory().setValue(1);
+                }
+            }
+        });
 
         // Delivery Location
         Label labelDeliveryLoc = new Label("Delivery Location : ");
         Label labelX = new Label("X : ");
         Spinner spinnerX = new Spinner(1, 100, 1);
+        spinnerX.setEditable(true);
         Label labelY = new Label("Y : ");
         Spinner spinnerY = new Spinner(1, 100, 1);
+        spinnerY.setEditable(true);
 
         HBox coordinateLabels = new HBox(10, labelX, spinnerX, labelY, spinnerY);
         coordinateLabels.setAlignment(Pos.CENTER);
@@ -297,8 +476,8 @@ public class Main extends Application {
         GridPane.setConstraints(txtOrderTime, 1, 1);
         GridPane.setConstraints(labelRestaurant, 0, 2, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(comboRestaurant, 1, 2);
-        GridPane.setConstraints(labelOrder, 0, 3, 1, 1, HPos.RIGHT, VPos.CENTER);
-        GridPane.setConstraints(comboOrder, 1, 3);
+        GridPane.setConstraints(labelDish, 0, 3, 1, 1, HPos.RIGHT, VPos.CENTER);
+        GridPane.setConstraints(comboDish, 1, 3);
         GridPane.setConstraints(btnSC_ADD, 2, 3, 1, 2);
         GridPane.setConstraints(labelQuantity, 0, 4, 1, 1, HPos.RIGHT, VPos.CENTER);
         GridPane.setConstraints(spinnerQuantity, 1, 4);
@@ -307,38 +486,50 @@ public class Main extends Application {
         layoutSCTopLeft.getChildren().addAll(labelCustomerID, txtCustomerID,
                 labelOrderTime, txtOrderTime,
                 labelRestaurant, comboRestaurant,
-                labelOrder, comboOrder, btnSC_ADD,
+                labelDish, comboDish, btnSC_ADD,
                 labelQuantity, spinnerQuantity,
                 labelDeliveryLoc, coordinateLabels);
         layoutSCTopLeft.setVgap(10);
         layoutSCTopLeft.setHgap(10);
         layoutSCTopLeft.setAlignment(Pos.CENTER);
 
-        // Your Orders
-        Label labelYourOrders = new Label("Your orders");
-
-        ListView listOrders = new ListView();
-        listOrders.getItems().add("Order 1");
-        listOrders.getItems().add("Order 2");
-        listOrders.getItems().add("Order 3");
-
-        Button btnSC_REMOVE = new Button("Remove");
-        btnSC_REMOVE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnSC_REMOVE.setOnAction(fn -> window.setScene(sceneMenu));
-
-        // #
-        VBox layoutSCTopRight = new VBox(10, labelYourOrders, listOrders, btnSC_REMOVE);
-        layoutSCTopRight.setAlignment(Pos.CENTER);
-        VBox.setVgrow(listOrders, Priority.ALWAYS);
-
         // Button
         Button btnSC_DONE = new Button("Done");
         btnSC_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnSC_DONE.setOnAction(fn -> window.setScene(sceneMenu));
+        btnSC_DONE.setOnAction(fn -> {
+            if (comboRestaurant.getSelectionModel().getSelectedItem() != null && !mapSC.isEmpty()) {
+                primaryStage.setScene(sceneMenu);
+                
+                CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
+                crabFoodOrder.setRestaurantName(comboRestaurant.getSelectionModel().getSelectedItem().toString());
+                HashMap<String, Integer> dishOrders = new HashMap<>();
+                dishOrders.putAll(mapSC);
+                crabFoodOrder.setDishOrders(dishOrders);
+                crabFoodOrder.setDeliveryLocation(new Position(
+                        Integer.parseInt(spinnerX.getValue().toString()),
+                        Integer.parseInt(spinnerY.getValue().toString())));
+                CrabFoodOperator.allCrabFoodOrders.add(crabFoodOrder);
+                
+                comboRestaurant.getSelectionModel().clearSelection();
+                comboDish.getSelectionModel().clearSelection();
+                spinnerQuantity.getValueFactory().setValue(1);
+                spinnerX.getValueFactory().setValue(1);
+                spinnerY.getValueFactory().setValue(1);
+                mapSC.clear();
+            }
+        });
 
         Button btnSC_CANCEL = new Button("Cancel");
         btnSC_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnSC_CANCEL.setOnAction(fn -> window.setScene(sceneMenu));
+        btnSC_CANCEL.setOnAction(fn -> {
+            primaryStage.setScene(sceneMenu);
+            comboRestaurant.getSelectionModel().clearSelection();
+            comboDish.getSelectionModel().clearSelection();
+            spinnerQuantity.getValueFactory().setValue(1);
+            spinnerX.getValueFactory().setValue(1);
+            spinnerY.getValueFactory().setValue(1);
+            mapSC.clear();
+        });
 
         // #
         HBox layoutSCBottom = new HBox(10, btnSC_CANCEL, btnSC_DONE);
@@ -358,9 +549,9 @@ public class Main extends Application {
         layoutSC.getChildren().addAll(layoutSCTopLeft, layoutSCTopRight, layoutSCBottom);
 
         sceneSC = new Scene(layoutSC, 1080, 828);
-        // =====================================================================
-        // EDIT RESTAURANT
-        // =====================================================================
+    }
+
+    private void makeSceneER(Stage primaryStage) {
         // Restaurant Name
         Label labelRestaurantName = new Label("Name : ");
 
@@ -390,7 +581,7 @@ public class Main extends Application {
 
         Button btnER_EDs = new Button("Edit Dishes");
         btnER_EDs.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnER_EDs.setOnAction(fn -> window.setScene(sceneEDs));
+        btnER_EDs.setOnAction(fn -> primaryStage.setScene(sceneEDs));
 
         // #
         GridPane layoutERTop = new GridPane();
@@ -413,11 +604,11 @@ public class Main extends Application {
         // Button
         Button btnER_DONE = new Button("Done");
         btnER_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnER_DONE.setOnAction(fn -> window.setScene(sceneMR));
+        btnER_DONE.setOnAction(fn -> primaryStage.setScene(sceneMR));
 
         Button btnER_CANCEL = new Button("Cancel");
         btnER_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnER_CANCEL.setOnAction(fn -> window.setScene(sceneMR));
+        btnER_CANCEL.setOnAction(fn -> primaryStage.setScene(sceneMR));
 
         // #
         HBox layoutERBottom = new HBox(10, btnER_CANCEL, btnER_DONE);
@@ -433,9 +624,9 @@ public class Main extends Application {
         layoutER.getChildren().addAll(layoutERTop, layoutERBottom);
 
         sceneER = new Scene(layoutER, 1080, 828);
-        // =====================================================================
-        // EDIT DISHES
-        // =====================================================================
+    }
+
+    private void makeSceneEDs(Stage primaryStage) {
         // Dish List
         ListView listDishes = new ListView();
         listDishes.getItems().add("Dish 1");
@@ -445,20 +636,20 @@ public class Main extends Application {
         // Buttons
         Button btnEDs_EDIT = new Button("Edit");
         btnEDs_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnEDs_EDIT.setOnAction(fn -> window.setScene(sceneED));
+        btnEDs_EDIT.setOnAction(fn -> primaryStage.setScene(sceneED));
 //        ObservableList selectedIndices = listView.getSelectionModel().getSelectedIndices();
 
         Button btnEDs_DELETE = new Button("Delete");
         btnEDs_DELETE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnEDs_EDIT.setOnAction(fn -> window.setScene(sceneED));
+//        btnEDs_EDIT.setOnAction(fn -> primaryStage.setScene(sceneED));
 
         Button btnEDs_ADD = new Button("Add");
         btnEDs_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnEDs_ADD.setOnAction(fn -> window.setScene(sceneED));
+        btnEDs_ADD.setOnAction(fn -> primaryStage.setScene(sceneED));
 
         Button btnEDs_DONE = new Button("Done");
         btnEDs_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnEDs_DONE.setOnAction(fn -> window.setScene(sceneER));
+        btnEDs_DONE.setOnAction(fn -> primaryStage.setScene(sceneER));
 
         // #
         HBox layoutEDsBottom = new HBox(10, btnEDs_EDIT, btnEDs_DELETE, btnEDs_ADD, btnEDs_DONE);
@@ -475,9 +666,9 @@ public class Main extends Application {
         layoutEDs.getChildren().addAll(listDishes, layoutEDsBottom);
 
         sceneEDs = new Scene(layoutEDs, 1080, 828);
-        // =====================================================================
-        // EDIT DISH
-        // =====================================================================
+    }
+
+    private void makeSceneED(Stage primaryStage) {
         // Dish Name
         Label labelDishName = new Label("Dish Name : ");
 
@@ -510,11 +701,11 @@ public class Main extends Application {
         // Button
         Button btnED_DONE = new Button("Done");
         btnED_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnED_DONE.setOnAction(fn -> window.setScene(sceneEDs));
+        btnED_DONE.setOnAction(fn -> primaryStage.setScene(sceneEDs));
 
         Button btnED_CANCEL = new Button("Cancel");
         btnED_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnED_CANCEL.setOnAction(fn -> window.setScene(sceneEDs));
+        btnED_CANCEL.setOnAction(fn -> primaryStage.setScene(sceneEDs));
 
         // #
         HBox layoutEDBottom = new HBox(10, btnED_CANCEL, btnED_DONE);
@@ -529,13 +720,6 @@ public class Main extends Application {
         layoutED.setPadding(new Insets(10, 10, 10, 10));
         layoutED.getChildren().addAll(layoutEDTop, layoutEDBottom);
         sceneED = new Scene(layoutED, 1080, 828);
-
-        // =====================================================================
-        window.setMinHeight(876);
-        window.setMinWidth(802);
-        window.setScene(sceneMenu);
-        window.setTitle("CrabFood");
-        window.show();
     }
 
     private class Tile extends StackPane {

@@ -136,23 +136,23 @@ class CrabFoodOperator {
                 String orderTime = SimulatedTime.parseTime(s.nextLine());
 
                 // read restaurant
-                String restaurant = s.nextLine();
+                String restaurantName = s.nextLine();
 
                 // read dish orders & quantity
-                HashMap<Dish, Integer> dishOrders = new HashMap<>();
+                HashMap<String, Integer> dishOrders = new HashMap<>();
                 
                 // read delivery location
                 Position deliveryLocation = new Position();
-                
+
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
                     if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+((\\s)+[0-9]+(\\s)*)$", input)) {
                         String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
                         int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
 
-                        dishOrders.put(new Restaurant(restaurant).new Dish(dishName), quanitity);
+                        dishOrders.put(dishName, quanitity);
                     } else if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+", input)) {
-                        dishOrders.put(new Restaurant(restaurant).new Dish(input.trim()), 1);
+                        dishOrders.put(input.trim(), 1);
                     } else if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
@@ -161,13 +161,15 @@ class CrabFoodOperator {
                     } else if (input.isEmpty()) {
                         break;
                     }
-                }                
-                
+                }
+
                 crabFoodOrder.setOrderTime(orderTime);
-                crabFoodOrder.setRestaurant(new Restaurant(restaurant));
+                crabFoodOrder.setRestaurantName(restaurantName);
                 crabFoodOrder.setDishOrders(dishOrders);
                 crabFoodOrder.setDeliveryLocation(deliveryLocation);
-                System.out.println(crabFoodOrder);
+
+                allCrabFoodOrders.add(crabFoodOrder);
+                System.out.println(crabFoodOrder.toTxtString());
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
@@ -210,14 +212,14 @@ class CrabFoodOperator {
 
         private static int customerId = 0;
         private String orderTime;
-        private Restaurant restaurant;
-        private HashMap<Dish, Integer> dishOrders;
+        private String restaurantName;
+        private HashMap<String, Integer> dishOrders;
         private Position deliveryLocation;
 
-        public CrabFoodOrder(Restaurant restaurant, HashMap<Dish, Integer> dishOrders, Position deliveryLocation) {
+        public CrabFoodOrder(String restaurantName, HashMap<String, Integer> dishOrders, Position deliveryLocation) {
             CrabFoodOrder.customerId++;
             this.orderTime = clock.getTime();
-            this.restaurant = restaurant;
+            this.restaurantName = restaurantName;
             this.dishOrders = dishOrders;
             this.deliveryLocation = deliveryLocation;
         }
@@ -227,13 +229,25 @@ class CrabFoodOperator {
             this.orderTime = clock.getTime();
         }
 
-        @Override
         public String toString() {
             String result = "";
+            result += customerId + "\n";
             result += orderTime + "\n";
-            result += restaurant.getName() + "\n";
-            for (Map.Entry<Dish, Integer> entry : dishOrders.entrySet()) {
-                result += entry.getKey().getName() + " ";
+            result += restaurantName + "\n";
+            for (Map.Entry<String, Integer> entry : dishOrders.entrySet()) {
+                result += entry.getKey() + " ";
+                result += entry.getValue() + "\n";
+            }
+            result += deliveryLocation + "\n";
+            return result;
+        }
+
+        public String toTxtString() {
+            String result = "";
+            result += orderTime + "\n";
+            result += restaurantName + "\n";
+            for (Map.Entry<String, Integer> entry : dishOrders.entrySet()) {
+                result += entry.getKey() + " ";
                 result += entry.getValue() + "\n";
             }
             result += deliveryLocation + "\n";
@@ -256,19 +270,19 @@ class CrabFoodOperator {
             this.orderTime = orderTime;
         }
 
-        public Restaurant getRestaurant() {
-            return restaurant;
+        public String getRestaurantName() {
+            return restaurantName;
         }
 
-        public void setRestaurant(Restaurant restaurant) {
-            this.restaurant = restaurant;
+        public void setRestaurantName(String restaurantName) {
+            this.restaurantName = restaurantName;
         }
 
-        public HashMap<Dish, Integer> getDishOrders() {
+        public HashMap<String, Integer> getDishOrders() {
             return dishOrders;
         }
 
-        public void setDishOrders(HashMap<Dish, Integer> dishOrders) {
+        public void setDishOrders(HashMap<String, Integer> dishOrders) {
             this.dishOrders = dishOrders;
         }
 

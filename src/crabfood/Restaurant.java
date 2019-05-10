@@ -108,8 +108,9 @@ class Restaurant {
 
         public Dish(String name) {
             this.name = name;
-            
+            this.foodPrepareDuration = -1;
         }
+        
         public String getName() {
             return name;
         }
