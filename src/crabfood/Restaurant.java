@@ -9,10 +9,14 @@ class Restaurant {
     private Character mapSymbol;
     private Position position;
     private ArrayList<Dish> allAvailableDishes;
+    private ArrayList<RestaurantOrder> allRestaurantOrders;
 
     public Restaurant() {
         this.mapSymbol = '#';
         this.name = "name not set";
+        this.position = new Position(0, 0);
+        this.allAvailableDishes = new ArrayList<>();
+        this.allRestaurantOrders = new ArrayList<>();
     }
 
     public Restaurant(String name) {
@@ -24,6 +28,7 @@ class Restaurant {
         this.name = name;
         this.position = position;
         this.allAvailableDishes = allAvailableDishes;
+        this.allRestaurantOrders = new ArrayList<>();
     }
 
     public int getCookTime(String dishName) {
@@ -33,6 +38,14 @@ class Restaurant {
             }
         }
         return -1;
+    }
+
+    public ArrayList<RestaurantOrder> getAllRestaurantOrders() {
+        return allRestaurantOrders;
+    }
+
+    public void setAllRestaurantOrders(ArrayList<RestaurantOrder> allRestaurantOrders) {
+        this.allRestaurantOrders = allRestaurantOrders;
     }
     
     public Character getMapSymbol() {
@@ -67,6 +80,41 @@ class Restaurant {
         this.allAvailableDishes = allAvailableDishes;
     }
 
+    class RestaurantOrder {
+        private String startTime = "0";
+        private String endTime = "0";
+        private int duration = SimulatedTime.parseTimeToSimulatedTime(startTime).differenceTime(endTime);
+
+        public RestaurantOrder(String startTime, String endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
+        }
+
+        public int getDuration() {
+            return duration;
+        }
+
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
+    }
+    
     class Dish {
 
         private String name;

@@ -1,22 +1,20 @@
 package crabfood;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class SimulatedTime {
 
-    private volatile static int hour = 0;
-    private volatile static int minute = 0;
+    private volatile int hour = 0;
+    private volatile int minute = 0;
 
     public SimulatedTime() {
-        SimulatedTime.hour = 0;
-        SimulatedTime.minute = 0;
+        this.hour = 0;
+        this.minute = 0;
     }
 
     public SimulatedTime(int hour, int minute) {
-        SimulatedTime.hour = hour;
-        SimulatedTime.minute = minute;
+        this.hour = hour;
+        this.minute = minute;
     }
 
     public int getHour() {
@@ -24,7 +22,7 @@ public class SimulatedTime {
     }
 
     public void setHour(int hour) {
-        SimulatedTime.hour = hour;
+        this.hour = hour;
     }
 
     public int getMinute() {
@@ -32,7 +30,7 @@ public class SimulatedTime {
     }
 
     public void setMinute(int minute) {
-        SimulatedTime.minute = minute;
+        this.minute = minute;
     }
 
     public void tick() {
@@ -47,9 +45,9 @@ public class SimulatedTime {
             minute++;
         }
     }
-    
+
     public void tickFor(int minutesToTick) {
-        for (int i=0 ; i<minutesToTick ; i++) {
+        for (int i = 0; i < minutesToTick; i++) {
             this.tick();
         }
     }
@@ -58,13 +56,24 @@ public class SimulatedTime {
         return this.hour == hour && this.minute == minute;
     }
 
-    public static String parseTime(String time) {
-        if (Pattern.matches("(//s)*([0-9])+(//s)*:(//s)*([0-9])+(//s)*", time)) {
-            return String.format("%02d:%02d",
-                    Integer.parseInt(time.split(":")[0]),
-                    Integer.parseInt(time.split(":")[1]));
+    public static SimulatedTime parseTimeToSimulatedTime(String timeStr) {
+        SimulatedTime sim = new SimulatedTime();
+        if (Pattern.matches("(//s)*([0-9])+(//s)*:(//s)*([0-9])+(//s)*", timeStr)) {
+            sim.setHour(Integer.parseInt(timeStr.split(":")[0]));
+            sim.setMinute(Integer.parseInt(timeStr.split(":")[1]));
         } else {
-            return String.format("%02d:00", Integer.parseInt(time));
+            sim.setHour(Integer.parseInt(timeStr));
+        }
+        return sim;
+    }
+
+    public static String parseTimeToString(String timeStr) {
+        if (Pattern.matches("(//s)*([0-9])+(//s)*:(//s)*([0-9])+(//s)*", timeStr)) {
+            return String.format("%02d:%02d",
+                    Integer.parseInt(timeStr.split(":")[0]),
+                    Integer.parseInt(timeStr.split(":")[1]));
+        } else {
+            return String.format("%02d:00", Integer.parseInt(timeStr));
         }
     }
 
@@ -76,6 +85,23 @@ public class SimulatedTime {
         // must setHour first as setMinute will affect the result of setHour
         this.setHour((this.getHour() + ((this.getMinute() + minuteToAdd) / 60) + hourToAdd) % 24);
         this.setMinute((this.getMinute() + minuteToAdd) % 60);
+    }
+
+    public void addTime(int minuteToAdd) {
+        // must setHour first as setMinute will affect the result of setHour
+        this.setHour((this.getHour() + (this.getMinute() + minuteToAdd) / 60) % 24);
+        this.setMinute((this.getMinute() + minuteToAdd) % 60);
+    }
+
+    public int differenceTime(String timeStr) {
+        SimulatedTime time = parseTimeToSimulatedTime(timeStr);
+        return Math.abs((this.getHour() - time.getHour()) * 60) + Math.abs(this.getMinute() - time.getMinute());
+    }
+
+    public String getTimeAfter(int minutePassed) {
+        SimulatedTime tempClock = new SimulatedTime(this.getHour(), this.getMinute());
+        tempClock.addTime(minutePassed);
+        return tempClock.getTime();
     }
 
     public String getTimeAfter(int hourPassed, int minutePassed) {

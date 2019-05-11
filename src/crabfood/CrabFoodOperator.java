@@ -3,6 +3,7 @@ package crabfood;
 import static crabfood.Main.clock;
 import crabfood.MyGoogleMap.Position;
 import crabfood.Restaurant.Dish;
+import crabfood.Restaurant.RestaurantOrder;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -82,6 +83,8 @@ class CrabFoodOperator {
                         + Math.abs(order.getDeliveryLocation().getPosY() - restaurant.getPosition().getPosY());
                 if (smallestDistance == distance) {
                     // make allocation
+                    String endTime = SimulatedTime.parseTimeToSimulatedTime(order.getOrderTime()).getTimeAfter(order.getCookTime());
+                    restaurant.getAllRestaurantOrders().add(restaurant.new RestaurantOrder(order.getOrderTime(), endTime));
 
                     // update process
                     CrabFoodOperator.appendToProcess("Branch of "
@@ -91,16 +94,13 @@ class CrabFoodOperator {
                     break;
                     /**
                      * if one or more branch have same distance, maybe we could
-                     * check the time to allocate for now, just break
+                     * allocate by time, but for now, just break loop
                      */
                 }
             }
         }
     }
 
-//    public static String calculateCompletionTime(Restaurant restaurant, Position restaurantPos) {
-//
-//    }
     /**
      * Add new strings to process
      *
@@ -243,7 +243,7 @@ class CrabFoodOperator {
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
 
                 // read order time
-                String orderTime = SimulatedTime.parseTime(s.nextLine());
+                String orderTime = SimulatedTime.parseTimeToString(s.nextLine());
 
                 // read restaurant
                 String restaurantName = s.nextLine();
@@ -360,15 +360,18 @@ class CrabFoodOperator {
         }
 
         public int calculateCookTime() {
-            int duration = 0;
+            int duration = -1;
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                 if (restaurantName.equals(restaurant.getName())) {
                     for (Map.Entry dish : dishOrders.entrySet()) {
                         int timeNeeded = restaurant.getCookTime(dish.getKey().toString()) * Integer.parseInt(dish.getValue().toString());
+                        if (duration < timeNeeded) {
+                            duration = timeNeeded;
+                        }
                         duration = duration < timeNeeded ? timeNeeded : duration;
                     }
+                    break;
                 }
-                break;
             }
             return duration;
         }
@@ -402,6 +405,11 @@ class CrabFoodOperator {
             return result;
         }
 
+        /**
+         * Just in case if need to write to "preset-crabfood-order.txt"
+         *
+         * @return CrabFoodOrder string
+         */
         public String toTxtString() {
             String result = "";
             result += orderTime + "\n";

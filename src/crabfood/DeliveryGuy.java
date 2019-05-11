@@ -26,8 +26,8 @@ class DeliveryGuy {
     class DeliverySession {
 
         private CrabFoodOrder CrabFoodOrderTBD;
-        private Position deliveryStartPosition;
-        private Position deliveryEndPosition;
+        private Position deliveryStartPosition = currentPosition;
+        private Position deliveryEndPosition = CrabFoodOrderTBD.getDeliveryLocation();
         private String deliveryStartTime;
         private String deliveryEndTime;
 
