@@ -13,14 +13,17 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
 
 class CrabFoodOperator {
-
+    
     public static ArrayList<Restaurant> partnerRestaurants;
     public static MyGoogleMap masterMap;
     public static ArrayList<DeliveryGuy> allDeliveryGuys;
     public static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
-
+    
     public CrabFoodOperator() {
 
         // set partner partner restaurants
@@ -41,7 +44,7 @@ class CrabFoodOperator {
 
         // populate txt for restaurant, crabfood orders and delivery guys
     }
-
+    
     public static boolean isNumeric(String strNum) {
         try {
             Double.parseDouble(strNum);
@@ -57,7 +60,7 @@ class CrabFoodOperator {
     public static void readPartnerRestaurants() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
-
+            
             while (s.hasNextLine()) {
                 Restaurant restaurant = new Restaurant();
 
@@ -72,7 +75,7 @@ class CrabFoodOperator {
                 ArrayList<Dish> dishes = new ArrayList<>();
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
-
+                    
                     if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
@@ -92,7 +95,7 @@ class CrabFoodOperator {
                 restaurant.setMapSymbol(restaurantMapSymbol);
                 restaurant.setPositions(restaurantPositions);
                 restaurant.setAllAvailableDishes(dishes);
-
+                
                 partnerRestaurants.add(restaurant);
                 System.out.println(restaurant.getMapSymbol());
                 System.out.println(restaurant.getName());
@@ -110,12 +113,12 @@ class CrabFoodOperator {
     public static void readAllDeliveryGuys() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/delivery-guy.txt"));
-
+            
             int numDeliveryGuy = 0;
             while (s.hasNextInt()) {
                 numDeliveryGuy = s.nextInt();
             }
-
+            
             for (int i = 0; i < numDeliveryGuy; i++) {
                 DeliveryGuy deliveryGuy = new DeliveryGuy(i);
                 allDeliveryGuys.add(deliveryGuy);
@@ -124,11 +127,11 @@ class CrabFoodOperator {
             System.out.println("\"delivery-guy.txt\" not found.");
         }
     }
-
+    
     public static void readAllCrabFoodOrders() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/crabfood-order.txt"));
-
+            
             while (s.hasNextLine()) {
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
 
@@ -140,16 +143,16 @@ class CrabFoodOperator {
 
                 // read dish orders & quantity
                 HashMap<String, Integer> dishOrders = new HashMap<>();
-                
+
                 // read delivery location
                 Position deliveryLocation = new Position();
-
+                
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
                     if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+((\\s)+[0-9]+(\\s)*)$", input)) {
                         String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
                         int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
-
+                        
                         dishOrders.put(dishName, quanitity);
                     } else if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+", input)) {
                         dishOrders.put(input.trim(), 1);
@@ -162,73 +165,74 @@ class CrabFoodOperator {
                         break;
                     }
                 }
-
+                
                 crabFoodOrder.setOrderTime(orderTime);
                 crabFoodOrder.setRestaurantName(restaurantName);
                 crabFoodOrder.setDishOrders(dishOrders);
                 crabFoodOrder.setDeliveryLocation(deliveryLocation);
-
+                
                 allCrabFoodOrders.add(crabFoodOrder);
-                System.out.println(crabFoodOrder.toTxtString());
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
         }
     }
-
+    
     public static MyGoogleMap getMasterMap() {
         return masterMap;
     }
-
+    
     public static void setMasterMap(MyGoogleMap masterMap) {
         CrabFoodOperator.masterMap = masterMap;
     }
-
+    
     public ArrayList<Restaurant> getPartnerRestaurants() {
         return partnerRestaurants;
     }
-
+    
     public void setPartnerRestaurants(ArrayList<Restaurant> partnerRestaurants) {
         CrabFoodOperator.partnerRestaurants = partnerRestaurants;
     }
-
+    
     public ArrayBag<CrabFoodOrder> getAllCrabFoodOrders() {
         return allCrabFoodOrders;
     }
-
+    
     public void setAllCrabFoodOrders(ArrayBag<CrabFoodOrder> allCrabFoodOrders) {
         CrabFoodOperator.allCrabFoodOrders = allCrabFoodOrders;
     }
-
+    
     public ArrayList<DeliveryGuy> getAllDeliveryGuys() {
         return allDeliveryGuys;
     }
-
+    
     public void setAllDeliveryGuys(ArrayList<DeliveryGuy> allDeliveryGuys) {
         CrabFoodOperator.allDeliveryGuys = allDeliveryGuys;
     }
-
+    
     static class CrabFoodOrder {
-
-        private static int customerId = 0;
+        private static IntegerProperty customerCount = new SimpleIntegerProperty(0);
+        private Integer customerId = customerCount.getValue();
         private String orderTime;
         private String restaurantName;
         private HashMap<String, Integer> dishOrders;
         private Position deliveryLocation;
-
+        
         public CrabFoodOrder(String restaurantName, HashMap<String, Integer> dishOrders, Position deliveryLocation) {
-            CrabFoodOrder.customerId++;
+            this.customerCount.set(customerCount.getValue() + 1);
+            this.customerId = customerCount.getValue();
             this.orderTime = clock.getTime();
             this.restaurantName = restaurantName;
             this.dishOrders = dishOrders;
             this.deliveryLocation = deliveryLocation;
         }
-
+        
         public CrabFoodOrder() {
-            CrabFoodOrder.customerId++;
+            this.customerCount.set(customerCount.getValue() + 1);
+            this.customerId = customerCount.getValue();
             this.orderTime = clock.getTime();
         }
-
+        
         public String toString() {
             String result = "";
             result += customerId + "\n";
@@ -241,7 +245,7 @@ class CrabFoodOperator {
             result += deliveryLocation + "\n";
             return result;
         }
-
+        
         public String toTxtString() {
             String result = "";
             result += orderTime + "\n";
@@ -254,12 +258,20 @@ class CrabFoodOperator {
             return result;
         }
 
-        public static int getCustomerId() {
+        public Integer getCustomerId() {
             return customerId;
         }
 
-        public static void setCustomerId(int customerId) {
-            CrabFoodOrder.customerId = customerId;
+        public void setCustomerId(Integer customerId) {
+            this.customerId = customerId;
+        }
+
+        public static IntegerProperty getCustomerCount() {
+            return customerCount;
+        }
+
+        public static void setCustomerCount(IntegerProperty customerCount) {
+            CrabFoodOrder.customerCount = customerCount;
         }
 
         public String getOrderTime() {
@@ -293,6 +305,8 @@ class CrabFoodOperator {
         public void setDeliveryLocation(Position deliveryLocation) {
             this.deliveryLocation = deliveryLocation;
         }
-
+        
+        
+        
     }
 }

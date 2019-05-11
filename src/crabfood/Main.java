@@ -9,6 +9,9 @@ import java.util.HashMap;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -45,6 +48,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.NumberStringConverter;
 import javax.naming.Binding;
 
 public class Main extends Application {
@@ -354,9 +359,18 @@ public class Main extends Application {
 
         // Customer ID
         Label labelCustomerID = new Label("Customer ID : ");
-
-        Text txtCustomerID = new Text(String.valueOf(CrabFoodOrder.getCustomerId() + 1));
-
+        
+        Text txtCustomerID = new Text();
+        int customerId = CrabFoodOrder.getCustomerCount().getValue() + 1;
+        txtCustomerID.setText(String.valueOf(customerId));
+        CrabFoodOrder.getCustomerCount().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                int customerId = CrabFoodOrder.getCustomerCount().getValue() + 1;
+                txtCustomerID.setText(String.valueOf(customerId));
+            }
+        });
+        
         // Order Time
         Label labelOrderTime = new Label("Order Time : ");
 
@@ -499,7 +513,7 @@ public class Main extends Application {
         btnSC_DONE.setOnAction(fn -> {
             if (comboRestaurant.getSelectionModel().getSelectedItem() != null && !mapSC.isEmpty()) {
                 primaryStage.setScene(sceneMenu);
-                
+
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
                 crabFoodOrder.setRestaurantName(comboRestaurant.getSelectionModel().getSelectedItem().toString());
                 HashMap<String, Integer> dishOrders = new HashMap<>();
@@ -509,7 +523,7 @@ public class Main extends Application {
                         Integer.parseInt(spinnerX.getValue().toString()),
                         Integer.parseInt(spinnerY.getValue().toString())));
                 CrabFoodOperator.allCrabFoodOrders.add(crabFoodOrder);
-                
+                System.out.println(crabFoodOrder);
                 comboRestaurant.getSelectionModel().clearSelection();
                 comboDish.getSelectionModel().clearSelection();
                 spinnerQuantity.getValueFactory().setValue(1);
