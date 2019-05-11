@@ -87,15 +87,17 @@ public class Main extends Application {
                     @Override
                     public void run() {
                         if (clock.getTime().equals("00:00")) {
-                            // update process
+                            // new day
                             CrabFoodOperator.getProcess().set(clock.getTime() + " A new day has started!");
 
-                            // update log
+                            // new log section
                             String logHeader = String.format("\n| %11s | %10s | %21s | %14s | %16s | %16s | %10s | %6s | %4s",
                                     "Customer ID", "Order Time", "Finished Cooking Time",
                                     "Delivered Time", "Cooking Duration", "Deliver Duration",
                                     "Restaurant", "Branch", "Dish");
                             CrabFoodOperator.appendToLog(logHeader);
+                            
+                            // check for crabfood order operations to be announced at process
                         }
                         clock.tick();
                     }

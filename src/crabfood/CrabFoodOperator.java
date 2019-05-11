@@ -25,7 +25,7 @@ class CrabFoodOperator {
     private static ArrayList<CrabFoodOrder> allCrabFoodOrders;
     private static StringProperty log;
     private static StringProperty process;
-    
+
     public CrabFoodOperator() {
         // set partner partner restaurants (read now & update later)
         CrabFoodOperator.partnerRestaurants = new ArrayList<>();
@@ -58,6 +58,18 @@ class CrabFoodOperator {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Allocate CrabFood orders to restaurants
+     */
+    public static void allocateOrder(CrabFoodOrder order) {
+        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+            if(order.getRestaurantName().equals(restaurant.getName())){
+                Restaurant restaurantEarliestComplete
+            }
+        }
+        CrabFoodOperator.appendToProcess();
     }
 
     /**
@@ -180,8 +192,7 @@ class CrabFoodOperator {
     }
 
     /**
-     * Load preset CrabFood orders from "crabfood-order.txt"
-     * Time must be sorted 
+     * Load preset CrabFood orders from "crabfood-order.txt" Time must be sorted
      */
     public static void readAllCrabFoodOrders() {
         try {

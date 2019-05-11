@@ -10,7 +10,6 @@ class Restaurant {
     private Character mapSymbol;
     private ArrayList<Position> positions;
     private ArrayList<Dish> allAvailableDishes;
-    private ArrayBag<restaurantOrder> allRestaurantOrders;
 
     public Restaurant() {
         this.mapSymbol = '#';
@@ -20,15 +19,14 @@ class Restaurant {
     public Restaurant(String name) {
         this.name = name;
     }
-    
-    public Restaurant(Character mapSymbol, String name, ArrayList<Position> positions, ArrayList<Dish> allAvailableDishes, ArrayBag<restaurantOrder> allRestaurantOrders) {
+
+    public Restaurant(Character mapSymbol, String name, ArrayList<Position> positions, ArrayList<Dish> allAvailableDishes) {
         this.mapSymbol = mapSymbol;
         this.name = name;
         this.positions = positions;
         this.allAvailableDishes = allAvailableDishes;
-        this.allRestaurantOrders = allRestaurantOrders;
     }
-    
+
     public Character getMapSymbol() {
         return mapSymbol;
     }
@@ -36,7 +34,7 @@ class Restaurant {
     public void setMapSymbol(Character mapSymbol) {
         this.mapSymbol = mapSymbol;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -61,41 +59,6 @@ class Restaurant {
         this.allAvailableDishes = allAvailableDishes;
     }
 
-    public ArrayBag<restaurantOrder> getAllRestaurantOrders() {
-        return allRestaurantOrders;
-    }
-
-    public void setAllRestaurantOrders(ArrayBag<restaurantOrder> allRestaurantOrders) {
-        this.allRestaurantOrders = allRestaurantOrders;
-    }
-
-    class restaurantOrder {
-
-        private HashMap<Dish, Integer> restaurantOrders;
-        private String orderTime;
-
-        public restaurantOrder(HashMap<Dish, Integer> restaurantOrders, String orderTime) {
-            this.restaurantOrders = restaurantOrders;
-            this.orderTime = orderTime;
-        }
-
-        public String getOrderTime() {
-            return orderTime;
-        }
-
-        public void setOrderTime(String orderTime) {
-            this.orderTime = orderTime;
-        }
-
-        public HashMap<Dish, Integer> getRestaurantOrders() {
-            return restaurantOrders;
-        }
-
-        public void setRestaurantOrders(HashMap<Dish, Integer> restaurantOrders) {
-            this.restaurantOrders = restaurantOrders;
-        }
-    }
-
     class Dish {
 
         private String name;
@@ -110,7 +73,7 @@ class Restaurant {
             this.name = name;
             this.foodPrepareDuration = -1;
         }
-        
+
         public String getName() {
             return name;
         }
