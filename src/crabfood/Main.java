@@ -96,7 +96,7 @@ public class Main extends Application {
                                     "Delivered Time", "Cooking Duration", "Deliver Duration",
                                     "Restaurant", "Branch", "Dish");
                             CrabFoodOperator.appendToLog(logHeader);
-                            
+
                             // check for crabfood order operations to be announced at process
                         }
                         clock.tick();
@@ -269,6 +269,7 @@ public class Main extends Application {
         Spinner spinnerNumDeliveryMan = new Spinner(1, 100, 1);
         spinnerNumDeliveryMan.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
         spinnerNumDeliveryMan.setEditable(true);
+        spinnerNumDeliveryMan.getValueFactory().setValue(CrabFoodOperator.getAllDeliveryGuys().size());
 
         // #
         HBox layoutMDTop = new HBox(10, labelNumDeliveryMan, spinnerNumDeliveryMan);
@@ -277,10 +278,25 @@ public class Main extends Application {
         // Button
         Button btnMD_DONE = new Button("Done");
         btnMD_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMD_DONE.setOnAction(fn -> primaryStage.setScene(sceneMenu));
+        btnMD_DONE.setOnAction(fn -> {
+            CrabFoodOperator.getAllDeliveryGuys().clear();
+            for (int i = 1; i <= Integer.parseInt(spinnerNumDeliveryMan.getValue().toString()); i++) {
+                DeliveryGuy deliveryGuy = new DeliveryGuy(i);
+                CrabFoodOperator.getAllDeliveryGuys().add(deliveryGuy);
+            }
+            CrabFoodOperator.updateAllDeliveryGuys();
+            primaryStage.setScene(sceneMenu);
+        });
+
+        Button btnMD_CANCEL = new Button("Cancel");
+        btnMD_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMD_CANCEL.setOnAction(fn -> {
+            spinnerNumDeliveryMan.getValueFactory().setValue(CrabFoodOperator.getAllDeliveryGuys().size());
+            primaryStage.setScene(sceneMenu);
+        });
 
         // #
-        HBox layoutMDBottom = new HBox(btnMD_DONE);
+        HBox layoutMDBottom = new HBox(10, btnMD_DONE, btnMD_CANCEL);
         layoutMDBottom.setAlignment(Pos.CENTER);
 
         // ##
@@ -415,8 +431,10 @@ public class Main extends Application {
         ComboBox comboRestaurant = new ComboBox();
         comboRestaurant.setPromptText("Pick a restaurant");
         comboRestaurant.setPrefSize(450, 10);
-        for (Restaurant restaurant : operator.getPartnerRestaurants()) {
-            comboRestaurant.getItems().add(restaurant.getName());
+        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+            if (!comboRestaurant.getItems().contains(restaurant.getName())) {
+                comboRestaurant.getItems().add(restaurant.getName());
+            }
         }
 
         // Dish & Quantity
@@ -519,8 +537,6 @@ public class Main extends Application {
         btnSC_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnSC_DONE.setOnAction(fn -> {
             if (comboRestaurant.getSelectionModel().getSelectedItem() != null && !mapSC.isEmpty()) {
-                primaryStage.setScene(sceneMenu);
-
                 // add crabfood order to all crabfood orders
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
                 crabFoodOrder.setRestaurantName(comboRestaurant.getSelectionModel().getSelectedItem().toString());
@@ -530,6 +546,7 @@ public class Main extends Application {
                 crabFoodOrder.setDeliveryLocation(new Position(
                         Integer.parseInt(spinnerX.getValue().toString()),
                         Integer.parseInt(spinnerY.getValue().toString())));
+                crabFoodOrder.setCookTime(crabFoodOrder.calculateCookTime());
                 CrabFoodOperator.getAllCrabFoodOrders().add(crabFoodOrder);
 
                 // add order to process
@@ -541,23 +558,24 @@ public class Main extends Application {
                         processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
                     } else {
                         processOrder += mapElement.getValue() + " " + mapElement.getKey();
-                        processOrder += count == dishOrders.size()-2 ? "" : ", ";
+                        processOrder += count == dishOrders.size() - 2 ? "" : ", ";
                     }
                     count++;
                 }
                 processOrder += "from " + comboRestaurant.getSelectionModel().getSelectedItem().toString() + ".";
                 CrabFoodOperator.appendToProcess(processOrder);
-                
+
                 // add restaurant-to-handle-order to process
-                
+                CrabFoodOperator.allocateOrderByDistance(crabFoodOrder);
 
                 // reset all components
                 comboRestaurant.getSelectionModel().clearSelection();
-                comboDish.getSelectionModel().clearSelection();
+                comboDish.getItems().clear();
                 spinnerQuantity.getValueFactory().setValue(1);
                 spinnerX.getValueFactory().setValue(1);
                 spinnerY.getValueFactory().setValue(1);
                 mapSC.clear();
+                primaryStage.setScene(sceneMenu);
             }
         });
 

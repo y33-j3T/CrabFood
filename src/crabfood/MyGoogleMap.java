@@ -35,9 +35,9 @@ public class MyGoogleMap {
                 String nextLine = s.nextLine();
                 nextLine = nextLine.replaceFirst("0*$", "");
 
-                if(!nextLine.isEmpty()){
+                if (!nextLine.isEmpty()) {
                     height++;
-                    
+
                     if (width < nextLine.length()) {
                         width = nextLine.length();
                     }
@@ -73,59 +73,53 @@ public class MyGoogleMap {
         // take a list of all restaurant positions taken from "partner-restaurant.txt"
         if (!hasOverlappedPositions()) {
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                for (Object position : restaurant.getPositions().toArray()) {
-                    allRestaurantPositions.add((Position) position);
+                allRestaurantPositions.add(restaurant.getPosition());
+            }
+            
+            // update width & height to fit the positions of restaurants
+            int max_posX = 0;
+            int max_posY = 0;
+            for (Position p : allRestaurantPositions) {
+                if (max_posX < p.getPosX()) {
+                    max_posX = p.getPosX();
                 }
+                if (max_posY < p.getPosY()) {
+                    max_posY = p.getPosY();
+                }
+            }
+            width = max_posX + 1;
+            height = max_posY + 1;
+
+            // make new map
+            map = new ArrayList<>();
+            Character[] arr = new Character[width];
+            ArrayList<Character> myList = new ArrayList<>(Arrays.asList(arr));
+            Collections.fill(myList, '0');
+            for (int i = 0; i < height; i++) {
+                map.add((ArrayList<Character>) myList.clone());
+            }
+
+            for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                map.get(restaurant.getPosition().getPosY()).set(restaurant.getPosition().getPosX(), restaurant.getMapSymbol());
+            }
+
+            // rewrite "map.txt"
+            try {
+                pw = new PrintWriter(new FileOutputStream("crabfood-io/map.txt"));
+                pw.print(this.toString());
+            } catch (FileNotFoundException ex) {
+                System.out.println("\"map.txt\" not found.");
+            } finally {
+                pw.close();
             }
         } else {
             System.out.println("Positions overlap. Unable to update map.");
         }
 
-        // update width & height to fit the positions of restaurants
-        int max_posX = 0;
-        int max_posY = 0;
-        for (Position p : allRestaurantPositions) {
-            if (max_posX < p.getPosX()) {
-                max_posX = p.getPosX();
-            }
-            if (max_posY < p.getPosY()) {
-                max_posY = p.getPosY();
-            }
-        }
-        width = max_posX + 1;
-        height = max_posY + 1;
-        
-        // make new map
-        map = new ArrayList<>();
-        Character[] arr = new Character[width];
-        ArrayList<Character> myList = new ArrayList<>(Arrays.asList(arr));
-        Collections.fill(myList, '0');
-        for (int i = 0; i < height; i++) {
-            map.add((ArrayList<Character>) myList.clone());
-        }
-
-        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-            for (Object position : restaurant.getPositions().toArray()) {
-                Position p = (Position) position;
-                map.get(p.getPosY()).set(p.getPosX(), restaurant.getMapSymbol());
-            }
-        }
-        
-        // rewrite "map.txt"
-        try {
-            pw = new PrintWriter(new FileOutputStream("crabfood-io/map.txt"));
-            System.out.println(this.toString());
-            pw.print(this.toString());
-        } catch (FileNotFoundException ex) {
-            System.out.println("\"map.txt\" not found.");
-        } finally {
-            pw.close();
-        }
     }
 
     @Override
     public String toString() {
-
         String mapStr = "";
         for (ArrayList<Character> charList : map) {
             mapStr += charList.toString()
@@ -139,9 +133,7 @@ public class MyGoogleMap {
     public boolean hasOverlappedPositions() {
         ArrayBag<Position> allPositions = new ArrayBag<>();
         for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-            for (Object position : restaurant.getPositions().toArray()) {
-                allPositions.add((Position) position);
-            }
+            allPositions.add(restaurant.getPosition());
         }
 
         for (Object p : (Object[]) allPositions.toArray()) {
@@ -197,7 +189,7 @@ public class MyGoogleMap {
             this.posX = -1;
             this.posY = -1;
         }
-        
+
         public Position(int posX, int posY) {
             this.posX = posX;
             this.posY = posY;

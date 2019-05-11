@@ -47,6 +47,12 @@ public class SimulatedTime {
             minute++;
         }
     }
+    
+    public void tickFor(int minutesToTick) {
+        for (int i=0 ; i<minutesToTick ; i++) {
+            this.tick();
+        }
+    }
 
     public boolean equalsTime(int hour, int minute) {
         return this.hour == hour && this.minute == minute;

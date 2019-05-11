@@ -2,13 +2,12 @@ package crabfood;
 
 import crabfood.MyGoogleMap.Position;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 class Restaurant {
 
     private String name;
     private Character mapSymbol;
-    private ArrayList<Position> positions;
+    private Position position;
     private ArrayList<Dish> allAvailableDishes;
 
     public Restaurant() {
@@ -20,13 +19,22 @@ class Restaurant {
         this.name = name;
     }
 
-    public Restaurant(Character mapSymbol, String name, ArrayList<Position> positions, ArrayList<Dish> allAvailableDishes) {
+    public Restaurant(Character mapSymbol, String name, Position position, ArrayList<Dish> allAvailableDishes) {
         this.mapSymbol = mapSymbol;
         this.name = name;
-        this.positions = positions;
+        this.position = position;
         this.allAvailableDishes = allAvailableDishes;
     }
 
+    public int getCookTime(String dishName) {
+        for (Dish dish : allAvailableDishes) {
+            if(dishName.equals(dish.getName())){
+                return dish.getFoodPrepareDuration();
+            }
+        }
+        return -1;
+    }
+    
     public Character getMapSymbol() {
         return mapSymbol;
     }
@@ -43,12 +51,12 @@ class Restaurant {
         this.name = name;
     }
 
-    public ArrayList<Position> getPositions() {
-        return positions;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setPositions(ArrayList<Position> positions) {
-        this.positions = positions;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public ArrayList<Dish> getAllAvailableDishes() {
