@@ -1,6 +1,5 @@
 package crabfood;
 
-import static crabfood.CrabFoodOperator.partnerRestaurants;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MyGoogleMap {
 
@@ -75,7 +72,7 @@ public class MyGoogleMap {
 
         // take a list of all restaurant positions taken from "partner-restaurant.txt"
         if (!hasOverlappedPositions()) {
-            for (Restaurant restaurant : partnerRestaurants) {
+            for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                 for (Object position : restaurant.getPositions().toArray()) {
                     allRestaurantPositions.add((Position) position);
                 }
@@ -107,7 +104,7 @@ public class MyGoogleMap {
             map.add((ArrayList<Character>) myList.clone());
         }
 
-        for (Restaurant restaurant : partnerRestaurants) {
+        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
             for (Object position : restaurant.getPositions().toArray()) {
                 Position p = (Position) position;
                 map.get(p.getPosY()).set(p.getPosX(), restaurant.getMapSymbol());
@@ -141,7 +138,7 @@ public class MyGoogleMap {
 
     public boolean hasOverlappedPositions() {
         ArrayBag<Position> allPositions = new ArrayBag<>();
-        for (Restaurant restaurant : partnerRestaurants) {
+        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
             for (Object position : restaurant.getPositions().toArray()) {
                 allPositions.add((Position) position);
             }

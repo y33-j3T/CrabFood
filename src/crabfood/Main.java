@@ -1,11 +1,10 @@
 package crabfood;
 
 import crabfood.CrabFoodOperator.CrabFoodOrder;
-import static crabfood.CrabFoodOperator.masterMap;
-import static crabfood.CrabFoodOperator.partnerRestaurants;
 import crabfood.MyGoogleMap.Position;
 import crabfood.Restaurant.Dish;
 import java.util.HashMap;
+import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -48,9 +47,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
-import javax.naming.Binding;
 
 public class Main extends Application {
 
@@ -59,7 +55,6 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-
         /**
          * start gui start time crabfood operator get order print process
          *
@@ -91,6 +86,17 @@ public class Main extends Application {
 
                     @Override
                     public void run() {
+                        if (clock.getTime().equals("00:00")) {
+                            // update process
+                            CrabFoodOperator.getProcess().set(clock.getTime() + " A new day has started!");
+
+                            // update log
+                            String logHeader = String.format("\n| %11s | %10s | %21s | %14s | %16s | %16s | %10s | %6s | %4s",
+                                    "Customer ID", "Order Time", "Finished Cooking Time",
+                                    "Delivered Time", "Cooking Duration", "Deliver Duration",
+                                    "Restaurant", "Branch", "Dish");
+                            CrabFoodOperator.appendToLog(logHeader);
+                        }
                         clock.tick();
                     }
                 };
@@ -101,7 +107,6 @@ public class Main extends Application {
                     } catch (InterruptedException ex) {
                     }
 
-                    // UI update is run on the Application thread
                     Platform.runLater(updater);
                 }
             }
@@ -141,7 +146,6 @@ public class Main extends Application {
         primaryStage.setTitle("CrabFood");
 //        primaryStage.setOnCloseRequest(fn -> {});
         primaryStage.show();
-
     }
 
     private void makeSceneMenu(Stage primaryStage) {
@@ -169,7 +173,7 @@ public class Main extends Application {
         TextArea txtareaPL = new TextArea();
         txtareaPL.setMinSize(500, 400);
         txtareaPL.setEditable(false);
-        txtareaPL.setText(masterMap.toString());
+        txtareaPL.textProperty().bind(CrabFoodOperator.getProcess());
 
         // Order Status
         TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
@@ -293,6 +297,7 @@ public class Main extends Application {
         // Order Log
         TextArea txtareaOrderLog = new TextArea();
         txtareaOrderLog.setEditable(false);
+        txtareaOrderLog.textProperty().bind(CrabFoodOperator.getLog());
 
         // Button
         Button btnVOL_BACK = new Button("Back");
@@ -359,7 +364,7 @@ public class Main extends Application {
 
         // Customer ID
         Label labelCustomerID = new Label("Customer ID : ");
-        
+
         Text txtCustomerID = new Text();
         int customerId = CrabFoodOrder.getCustomerCount().getValue() + 1;
         txtCustomerID.setText(String.valueOf(customerId));
@@ -370,7 +375,7 @@ public class Main extends Application {
                 txtCustomerID.setText(String.valueOf(customerId));
             }
         });
-        
+
         // Order Time
         Label labelOrderTime = new Label("Order Time : ");
 
@@ -408,7 +413,7 @@ public class Main extends Application {
         ComboBox comboRestaurant = new ComboBox();
         comboRestaurant.setPromptText("Pick a restaurant");
         comboRestaurant.setPrefSize(450, 10);
-        for (Restaurant restaurant : partnerRestaurants) {
+        for (Restaurant restaurant : operator.getPartnerRestaurants()) {
             comboRestaurant.getItems().add(restaurant.getName());
         }
 
@@ -440,7 +445,7 @@ public class Main extends Application {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 // reset dish
                 if (comboRestaurant.getSelectionModel().getSelectedItem() != null) {
-                    for (Restaurant restaurant : partnerRestaurants) {
+                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                         if (comboRestaurant.getSelectionModel().getSelectedItem().toString().equals(restaurant.getName())) {
                             comboDish.getItems().clear();
                             for (Dish dish : restaurant.getAllAvailableDishes()) {
@@ -514,6 +519,7 @@ public class Main extends Application {
             if (comboRestaurant.getSelectionModel().getSelectedItem() != null && !mapSC.isEmpty()) {
                 primaryStage.setScene(sceneMenu);
 
+                // add crabfood order to all crabfood orders
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
                 crabFoodOrder.setRestaurantName(comboRestaurant.getSelectionModel().getSelectedItem().toString());
                 HashMap<String, Integer> dishOrders = new HashMap<>();
@@ -522,8 +528,28 @@ public class Main extends Application {
                 crabFoodOrder.setDeliveryLocation(new Position(
                         Integer.parseInt(spinnerX.getValue().toString()),
                         Integer.parseInt(spinnerY.getValue().toString())));
-                CrabFoodOperator.allCrabFoodOrders.add(crabFoodOrder);
-                System.out.println(crabFoodOrder);
+                CrabFoodOperator.getAllCrabFoodOrders().add(crabFoodOrder);
+
+                // add order to process
+                String processOrder = String.format("Customer %d wants to order ", CrabFoodOrder.getCustomerCount().getValue());
+                int count = 0;
+                for (Map.Entry mapElement : dishOrders.entrySet()) {
+                    if (count == dishOrders.size() - 1) {
+                        processOrder += dishOrders.size() == 1 ? "" : " & ";
+                        processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
+                    } else {
+                        processOrder += mapElement.getValue() + " " + mapElement.getKey();
+                        processOrder += count == dishOrders.size()-2 ? "" : ", ";
+                    }
+                    count++;
+                }
+                processOrder += "from " + comboRestaurant.getSelectionModel().getSelectedItem().toString() + ".";
+                CrabFoodOperator.appendToProcess(processOrder);
+                
+                // add restaurant-to-handle-order to process
+                
+
+                // reset all components
                 comboRestaurant.getSelectionModel().clearSelection();
                 comboDish.getSelectionModel().clearSelection();
                 spinnerQuantity.getValueFactory().setValue(1);
@@ -580,9 +606,9 @@ public class Main extends Application {
         GridPane gridRestaurantLoc = new GridPane();
         gridRestaurantLoc.setPrefSize(700, 600);
         gridRestaurantLoc.setMaxSize(700, 600);
-        for (int i = 0; i < masterMap.getWidth(); i++) {
-            for (int j = 0; j < masterMap.getHeight(); j++) {
-                Tile tile = new Tile(String.valueOf(masterMap.getSymbolAt(i, j)));
+        for (int i = 0; i < CrabFoodOperator.getMasterMap().getWidth(); i++) {
+            for (int j = 0; j < CrabFoodOperator.getMasterMap().getHeight(); j++) {
+                Tile tile = new Tile(String.valueOf(CrabFoodOperator.getMasterMap().getSymbolAt(i, j)));
                 GridPane.setConstraints(tile, i, j);
                 gridRestaurantLoc.getChildren().addAll(tile);
             }

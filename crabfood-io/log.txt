@@ -1,0 +1,17 @@
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Restaurant | Branch | Dish

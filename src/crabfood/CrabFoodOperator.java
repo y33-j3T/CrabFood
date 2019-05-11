@@ -5,46 +5,52 @@ import crabfood.MyGoogleMap.Position;
 import crabfood.Restaurant.Dish;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 class CrabFoodOperator {
-    
-    public static ArrayList<Restaurant> partnerRestaurants;
-    public static MyGoogleMap masterMap;
-    public static ArrayList<DeliveryGuy> allDeliveryGuys;
-    public static ArrayBag<CrabFoodOrder> allCrabFoodOrders;
+
+    private static ArrayList<Restaurant> partnerRestaurants;
+    private static MyGoogleMap masterMap;
+    private static ArrayList<DeliveryGuy> allDeliveryGuys;
+    private static ArrayList<CrabFoodOrder> allCrabFoodOrders;
+    private static StringProperty log;
+    private static StringProperty process;
     
     public CrabFoodOperator() {
-
-        // set partner partner restaurants
+        // set partner partner restaurants (read now & update later)
         CrabFoodOperator.partnerRestaurants = new ArrayList<>();
         readPartnerRestaurants();
 
-        // set & update master map
+        // set & update master map (read now & update now)
         CrabFoodOperator.masterMap = new MyGoogleMap();
         masterMap.updateMap();
 
-        // set all delivery guys
+        // set all delivery guys (read now & update later)
         CrabFoodOperator.allDeliveryGuys = new ArrayList<>();
         readAllDeliveryGuys();
 
-        // set all Crabfood orders
-        CrabFoodOperator.allCrabFoodOrders = new ArrayBag<>();
-        readAllCrabFoodOrders();
+        // set all Crabfood orders (read now | update later)
+        CrabFoodOperator.allCrabFoodOrders = new ArrayList<>();
+//        readAllCrabFoodOrders();
 
-        // populate txt for restaurant, crabfood orders and delivery guys
+        // set log (read now & update later)
+        log = new SimpleStringProperty("");
+        readLog();
+
+        // set process (update later)
+        process = new SimpleStringProperty("");
     }
-    
+
     public static boolean isNumeric(String strNum) {
         try {
             Double.parseDouble(strNum);
@@ -55,12 +61,57 @@ class CrabFoodOperator {
     }
 
     /**
+     * Add new strings to process
+     *
+     * @param lineToAppend
+     */
+    public static void appendToProcess(String lineToAppend) {
+        // append internally to log
+        process.set(process.concat("\n" + clock.getTime() + " " + lineToAppend).get());
+    }
+
+    /**
+     * load previously saved "log.txt"
+     */
+    public static void readLog() {
+        try {
+            Scanner s = new Scanner(new FileInputStream("crabfood-io/log.txt"));
+            while (s.hasNextLine()) {
+                log.set(log.concat(s.nextLine() + "\n").get());
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("\"log.txt\" not found.");
+        }
+    }
+
+    /**
+     * Add new strings to log file
+     *
+     * @param lineToAppend
+     */
+    public static void appendToLog(String lineToAppend) {
+        // append internally to log
+        log.set(log.concat(lineToAppend + "\n").get());
+
+        // append externally to "log.txt"
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(new FileOutputStream("crabfood-io/log.txt", true));
+            pw.print(lineToAppend);
+        } catch (FileNotFoundException ex) {
+            System.out.println("\"log.txt\" not found.");
+        } finally {
+            pw.close();
+        }
+    }
+
+    /**
      * load previously saved "partner-restaurant.txt"
      */
     public static void readPartnerRestaurants() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
-            
+
             while (s.hasNextLine()) {
                 Restaurant restaurant = new Restaurant();
 
@@ -75,7 +126,7 @@ class CrabFoodOperator {
                 ArrayList<Dish> dishes = new ArrayList<>();
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
-                    
+
                     if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
@@ -95,7 +146,7 @@ class CrabFoodOperator {
                 restaurant.setMapSymbol(restaurantMapSymbol);
                 restaurant.setPositions(restaurantPositions);
                 restaurant.setAllAvailableDishes(dishes);
-                
+
                 partnerRestaurants.add(restaurant);
                 System.out.println(restaurant.getMapSymbol());
                 System.out.println(restaurant.getName());
@@ -113,12 +164,12 @@ class CrabFoodOperator {
     public static void readAllDeliveryGuys() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/delivery-guy.txt"));
-            
+
             int numDeliveryGuy = 0;
             while (s.hasNextInt()) {
                 numDeliveryGuy = s.nextInt();
             }
-            
+
             for (int i = 0; i < numDeliveryGuy; i++) {
                 DeliveryGuy deliveryGuy = new DeliveryGuy(i);
                 allDeliveryGuys.add(deliveryGuy);
@@ -127,11 +178,15 @@ class CrabFoodOperator {
             System.out.println("\"delivery-guy.txt\" not found.");
         }
     }
-    
+
+    /**
+     * Load preset CrabFood orders from "crabfood-order.txt"
+     * Time must be sorted 
+     */
     public static void readAllCrabFoodOrders() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/crabfood-order.txt"));
-            
+
             while (s.hasNextLine()) {
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
 
@@ -146,13 +201,13 @@ class CrabFoodOperator {
 
                 // read delivery location
                 Position deliveryLocation = new Position();
-                
+
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
                     if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+((\\s)+[0-9]+(\\s)*)$", input)) {
                         String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
                         int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
-                        
+
                         dishOrders.put(dishName, quanitity);
                     } else if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+", input)) {
                         dishOrders.put(input.trim(), 1);
@@ -165,74 +220,100 @@ class CrabFoodOperator {
                         break;
                     }
                 }
-                
+
                 crabFoodOrder.setOrderTime(orderTime);
                 crabFoodOrder.setRestaurantName(restaurantName);
                 crabFoodOrder.setDishOrders(dishOrders);
                 crabFoodOrder.setDeliveryLocation(deliveryLocation);
-                
+
                 allCrabFoodOrders.add(crabFoodOrder);
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
         }
     }
-    
+
+    public static StringProperty getProcess() {
+        return process;
+    }
+
+    public static void setProcess(StringProperty process) {
+        CrabFoodOperator.process = process;
+    }
+
+    public static StringProperty getLog() {
+        return log;
+    }
+
+    public static void setLog(StringProperty log) {
+        CrabFoodOperator.log = log;
+    }
+
     public static MyGoogleMap getMasterMap() {
         return masterMap;
     }
-    
+
     public static void setMasterMap(MyGoogleMap masterMap) {
         CrabFoodOperator.masterMap = masterMap;
     }
-    
-    public ArrayList<Restaurant> getPartnerRestaurants() {
+
+    public static ArrayList<Restaurant> getPartnerRestaurants() {
         return partnerRestaurants;
     }
-    
-    public void setPartnerRestaurants(ArrayList<Restaurant> partnerRestaurants) {
+
+    public static void setPartnerRestaurants(ArrayList<Restaurant> partnerRestaurants) {
         CrabFoodOperator.partnerRestaurants = partnerRestaurants;
     }
-    
-    public ArrayBag<CrabFoodOrder> getAllCrabFoodOrders() {
+
+    public static ArrayList<CrabFoodOrder> getAllCrabFoodOrders() {
         return allCrabFoodOrders;
     }
-    
-    public void setAllCrabFoodOrders(ArrayBag<CrabFoodOrder> allCrabFoodOrders) {
+
+    public static void setAllCrabFoodOrders(ArrayList<CrabFoodOrder> allCrabFoodOrders) {
         CrabFoodOperator.allCrabFoodOrders = allCrabFoodOrders;
     }
-    
-    public ArrayList<DeliveryGuy> getAllDeliveryGuys() {
+
+    public static ArrayList<DeliveryGuy> getAllDeliveryGuys() {
         return allDeliveryGuys;
     }
-    
-    public void setAllDeliveryGuys(ArrayList<DeliveryGuy> allDeliveryGuys) {
+
+    public static void setAllDeliveryGuys(ArrayList<DeliveryGuy> allDeliveryGuys) {
         CrabFoodOperator.allDeliveryGuys = allDeliveryGuys;
     }
-    
+
     static class CrabFoodOrder {
+
         private static IntegerProperty customerCount = new SimpleIntegerProperty(0);
-        private Integer customerId = customerCount.getValue();
+        private Integer customerId = customerCount.getValue() + 1;
         private String orderTime;
         private String restaurantName;
         private HashMap<String, Integer> dishOrders;
         private Position deliveryLocation;
-        
+        private String[] status = {"New Order", "Preparing...", "Delivering...", "Delivered"};
+
         public CrabFoodOrder(String restaurantName, HashMap<String, Integer> dishOrders, Position deliveryLocation) {
             this.customerCount.set(customerCount.getValue() + 1);
-            this.customerId = customerCount.getValue();
+            this.customerId = customerCount.getValue() + 1;
             this.orderTime = clock.getTime();
             this.restaurantName = restaurantName;
             this.dishOrders = dishOrders;
             this.deliveryLocation = deliveryLocation;
         }
-        
+
         public CrabFoodOrder() {
             this.customerCount.set(customerCount.getValue() + 1);
-            this.customerId = customerCount.getValue();
+            this.customerId = customerCount.getValue() + 1;
             this.orderTime = clock.getTime();
         }
-        
+
+        public String[] getStatus() {
+            return status;
+        }
+
+        public void setStatus(String[] status) {
+            this.status = status;
+        }
+
         public String toString() {
             String result = "";
             result += customerId + "\n";
@@ -245,7 +326,7 @@ class CrabFoodOperator {
             result += deliveryLocation + "\n";
             return result;
         }
-        
+
         public String toTxtString() {
             String result = "";
             result += orderTime + "\n";
@@ -305,8 +386,6 @@ class CrabFoodOperator {
         public void setDeliveryLocation(Position deliveryLocation) {
             this.deliveryLocation = deliveryLocation;
         }
-        
-        
-        
+
     }
 }
