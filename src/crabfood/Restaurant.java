@@ -1,5 +1,6 @@
 package crabfood;
 
+import static crabfood.Main.clock;
 import crabfood.MyGoogleMap.Position;
 import java.util.ArrayList;
 
@@ -12,8 +13,8 @@ class Restaurant {
     private ArrayList<RestaurantOrder> allRestaurantOrders;
 
     public Restaurant() {
-        this.mapSymbol = '#';
         this.name = "name not set";
+        this.mapSymbol = '#';
         this.position = new Position(0, 0);
         this.allAvailableDishes = new ArrayList<>();
         this.allRestaurantOrders = new ArrayList<>();
@@ -21,19 +22,42 @@ class Restaurant {
 
     public Restaurant(String name) {
         this.name = name;
+        this.mapSymbol = name.charAt(0);
+        this.position = new Position(0, 0);
+        this.allAvailableDishes = new ArrayList<>();
+        this.allRestaurantOrders = new ArrayList<>();
     }
 
-    public Restaurant(Character mapSymbol, String name, Position position, ArrayList<Dish> allAvailableDishes) {
-        this.mapSymbol = mapSymbol;
+    public Restaurant(String name, Character mapSymbol, Position position, ArrayList<Dish> allAvailableDishes) {
         this.name = name;
+        this.mapSymbol = mapSymbol;
         this.position = position;
         this.allAvailableDishes = allAvailableDishes;
         this.allRestaurantOrders = new ArrayList<>();
     }
 
+    /**
+     * if the time now is earlier than the finish prep time of the previous
+     * order return the finish prep time + 1 min, else return the time now
+     *
+     * @return the preparation start time of the next order
+     */
+    public String getNextOrderStartPrepTime() {
+        if (!allRestaurantOrders.isEmpty()) {
+            if (SimulatedTime.compareStringTime(clock.getTime(), allRestaurantOrders.get(allRestaurantOrders.size() - 1).getEndTime()) <= 0) {
+//                return SimulatedTime.addStringTime(allRestaurantOrders.get(allRestaurantOrders.size() - 1).getEndTime(), "00:01");
+                return allRestaurantOrders.get(allRestaurantOrders.size() - 1).getEndTime();
+            } else {
+                return clock.getTime();
+            }
+        } else {
+            return clock.getTime();
+        }
+    }
+
     public int getCookTime(String dishName) {
         for (Dish dish : allAvailableDishes) {
-            if(dishName.equals(dish.getName())){
+            if (dishName.equals(dish.getName())) {
                 return dish.getFoodPrepareDuration();
             }
         }
@@ -47,7 +71,7 @@ class Restaurant {
     public void setAllRestaurantOrders(ArrayList<RestaurantOrder> allRestaurantOrders) {
         this.allRestaurantOrders = allRestaurantOrders;
     }
-    
+
     public Character getMapSymbol() {
         return mapSymbol;
     }
@@ -81,13 +105,24 @@ class Restaurant {
     }
 
     class RestaurantOrder {
-        private String startTime = "0";
-        private String endTime = "0";
-        private int duration = SimulatedTime.parseTimeToSimulatedTime(startTime).differenceTime(endTime);
 
-        public RestaurantOrder(String startTime, String endTime) {
+        private String startTime = "-1";
+        private String endTime = "-1";
+        private int duration = SimulatedTime.parseTimeToSimulatedTime(startTime).differenceTime(endTime);
+        private int customerId = -1;
+
+        public RestaurantOrder(String startTime, String endTime, int customerId) {
             this.startTime = startTime;
             this.endTime = endTime;
+            this.customerId = customerId;
+        }
+
+        public int getCustomerId() {
+            return customerId;
+        }
+
+        public void setCustomerId(int customerId) {
+            this.customerId = customerId;
         }
 
         public String getStartTime() {
@@ -114,7 +149,7 @@ class Restaurant {
             this.duration = duration;
         }
     }
-    
+
     class Dish {
 
         private String name;

@@ -110,6 +110,41 @@ public class SimulatedTime {
         return tempClock.getTime();
     }
 
+    /**
+     * @param time1
+     * @param time2
+     * @return 1 if time1 is later than time2, -1 if time1 is earlier than
+     * time2, 0 if time1 is equal to time2
+     */
+    public static int compareStringTime(String time1, String time2) {
+        SimulatedTime temp1 = SimulatedTime.parseTimeToSimulatedTime(time1);
+        SimulatedTime temp2 = SimulatedTime.parseTimeToSimulatedTime(time2);
+        if (temp1.getHour() > temp2.getHour()) {
+            return 1;
+        } else if (temp1.getHour() == temp2.getHour()) {
+            if (temp1.getMinute() > temp2.getMinute()) {
+                return 1;
+            } else if (temp1.getMinute() == temp2.getMinute()) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
+    }
+
+    public static String getTimeAfter(String time, int minutePassed) {
+        SimulatedTime temp = SimulatedTime.parseTimeToSimulatedTime(time);
+        return temp.getTimeAfter(minutePassed);
+    }
+
+    public static String addStringTime(String time1, String time2) {
+        SimulatedTime temp1 = SimulatedTime.parseTimeToSimulatedTime(time1);
+        SimulatedTime temp2 = SimulatedTime.parseTimeToSimulatedTime(time2);
+        return temp1.getTimeAfter(temp2.getHour(), temp2.getMinute());
+    }
+
     @Override
     public String toString() {
         return String.format("%02d:%02d", hour, minute);

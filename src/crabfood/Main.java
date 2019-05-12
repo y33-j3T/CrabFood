@@ -1,8 +1,10 @@
 package crabfood;
 
 import crabfood.CrabFoodOperator.CrabFoodOrder;
+import crabfood.DeliveryGuy.DeliverySession;
 import crabfood.MyGoogleMap.Position;
 import crabfood.Restaurant.Dish;
+import crabfood.Restaurant.RestaurantOrder;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.application.Application;
@@ -77,7 +79,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         Thread timeThread = new Thread(new Runnable() {
 
             @Override
@@ -96,8 +97,63 @@ public class Main extends Application {
                                     "Delivered Time", "Cooking Duration", "Deliver Duration",
                                     "Restaurant", "Branch", "Dish");
                             CrabFoodOperator.appendToLog(logHeader);
+                        }
+                        // check for start & end of food preparation at all restaurant branches
+                        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                            for (RestaurantOrder rOrder : restaurant.getAllRestaurantOrders()) {
+                                if (rOrder.getStartTime().equals(clock.getTime())) {
+                                    // update process
+                                    CrabFoodOperator.appendToProcess(
+                                            String.format("Branch of %s at %s starts preparing order of customer %d.",
+                                                    restaurant.getName(),
+                                                    restaurant.getPosition(),
+                                                    rOrder.getCustomerId()));
 
-                            // check for crabfood order operations to be announced at process
+                                    // update status table
+                                } else if (rOrder.getEndTime().equals(clock.getTime())) {
+                                    // update process
+                                    CrabFoodOperator.appendToProcess(
+                                            String.format("Branch of %s at %s finishes preparing order of customer %d.",
+                                                    restaurant.getName(),
+                                                    restaurant.getPosition(),
+                                                    rOrder.getCustomerId()));
+
+                                    // pass to delivery man (via delivery man allocating algo)
+                                    for (CrabFoodOrder cfOrder : CrabFoodOperator.getAllCrabFoodOrders()) {
+                                        if (cfOrder.getCustomerId() == rOrder.getCustomerId()) {
+                                            CrabFoodOperator.allocateDeliveryByFinishTime(cfOrder);
+                                        }
+                                    }
+                                    // update status table
+                                    // remove from restaurant's list of restaurant orders
+                                }
+                            }
+                        }
+
+                        // check for start & end of delivery at all delivery guys
+                        for (DeliveryGuy deliveryGuy : CrabFoodOperator.getAllDeliveryGuys()) {
+                            for (DeliverySession session : deliveryGuy.getAllDeliverySession()) {
+                                if (session.getDeliveryStartTime().equals(clock.getTime())) {
+                                    // update process
+                                    CrabFoodOperator.appendToProcess(
+                                            String.format("Delivery Man %d at %s starts delivering order to customer %d at %s.",
+                                                    deliveryGuy.getDeliveryGuyId(),
+                                                    deliveryGuy.getCurrentPosition().toString(),
+                                                    session.getCrabFoodOrderTBD().getCustomerId(),
+                                                    session.getDeliveryEndPosition()));
+                                    // update status table
+                                } else if (session.getDeliveryEndTime().equals(clock.getTime())) {
+                                    // update process
+                                    CrabFoodOperator.appendToProcess(
+                                            String.format("Delivery Man %d at %s finishes delivering order to customer %d at %s.",
+                                                    deliveryGuy.getDeliveryGuyId(),
+                                                    deliveryGuy.getCurrentPosition().toString(),
+                                                    session.getCrabFoodOrderTBD().getCustomerId(),
+                                                    session.getDeliveryEndPosition()));
+                                    // update status table
+
+                                }
+                            }
                         }
                         clock.tick();
                     }

@@ -75,7 +75,7 @@ public class MyGoogleMap {
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                 allRestaurantPositions.add(restaurant.getPosition());
             }
-            
+
             // update width & height to fit the positions of restaurants
             int max_posX = 0;
             int max_posY = 0;
@@ -116,6 +116,14 @@ public class MyGoogleMap {
             System.out.println("Positions overlap. Unable to update map.");
         }
 
+    }
+
+    public static int getDistance(Position pos1, Position pos2) {
+        return Math.abs(pos1.getPosX() - pos2.getPosX()) + Math.abs(pos1.getPosY() - pos2.getPosY());
+    }
+    
+    public static int getTravelDuration(Position pos1, Position pos2) {
+        return getDistance(pos1, pos2);
     }
 
     @Override
