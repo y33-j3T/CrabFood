@@ -17,6 +17,16 @@ public class SimulatedTime {
         this.minute = minute;
     }
 
+    public void resetTime() {
+        this.hour = 0;
+        this.minute = 0;
+    }
+
+    public void setTime(int hour, int minute) {
+        this.hour = hour;
+        this.minute = minute;
+    }
+
     public int getHour() {
         return hour;
     }

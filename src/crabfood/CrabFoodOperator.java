@@ -22,11 +22,11 @@ import javafx.beans.property.StringProperty;
 class CrabFoodOperator {
 
     private static ArrayList<Restaurant> partnerRestaurants;
-    private static MyGoogleMap masterMap;
     private static ArrayList<DeliveryGuy> allDeliveryGuys;
     private static ArrayList<CrabFoodOrder> allCrabFoodOrders;
     private static StringProperty log;
     private static StringProperty process;
+    private static MyGoogleMap masterMap;
 
     public CrabFoodOperator() {
         // set partner partner restaurants (read now & update later)
@@ -43,7 +43,7 @@ class CrabFoodOperator {
 
         // set all Crabfood orders (read now | update later)
         CrabFoodOperator.allCrabFoodOrders = new ArrayList<>();
-//        readAllCrabFoodOrders();
+        readAllCrabFoodOrders();
 
         // set log (read now & update later)
         log = new SimpleStringProperty("");
@@ -101,22 +101,80 @@ class CrabFoodOperator {
             CrabFoodOperator.allocateDeliveryByDistance(menWithEarliest, cfOrder);
         } else {
             // only 1 man has earliest delivery end time
-            for (DeliveryGuy deliveryGuy : CrabFoodOperator.getAllDeliveryGuys()) {
-                String prevDeliveryEndTime = deliveryGuy.getAllDeliverySession().get(deliveryGuy.getAllDeliverySession().size() - 1).getDeliveryEndTime();
-                if (earliest.equals(prevDeliveryEndTime)) {
-                    int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
-                    String startTime = "";
-                    if (!deliveryGuy.getCurrentPosition().toString().equals(cfOrder.getBranchLocation().toString())) {
-                        // if delivery guy not at the branch position
-                        int goToBranchDuration = MyGoogleMap.getTravelDuration(deliveryGuy.getCurrentPosition(), cfOrder.getBranchLocation());
-                        startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
-                    } else {
-                        // if delivery guy not at the branch position
-                        startTime = earliest;
+            DeliveryGuy theGuy = null;
+            if (earliest.equals(clock.getTime())) {
+                for (DeliveryGuy deliveryGuy : CrabFoodOperator.getAllDeliveryGuys()) {
+                    if (deliveryGuy.getAllDeliverySession().isEmpty()) {
+                        theGuy = deliveryGuy;
                     }
-                    String endTime = SimulatedTime.getTimeAfter(startTime, deliverDuration);
-                    deliveryGuy.getAllDeliverySession().add(new DeliverySession(cfOrder, startTime, endTime));
                 }
+            } else {
+                for (DeliveryGuy deliveryGuy : CrabFoodOperator.getAllDeliveryGuys()) {
+                    String prevDeliveryEndTime = deliveryGuy.getAllDeliverySession().get(deliveryGuy.getAllDeliverySession().size() - 1).getDeliveryEndTime();
+                    if (earliest.equals(prevDeliveryEndTime)) {
+                        theGuy = deliveryGuy;
+                    }
+                }
+            }
+
+            int goToBranchDuration = MyGoogleMap.getTravelDuration(theGuy.getCurrentPosition(), cfOrder.getBranchLocation());
+            int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
+            String startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
+            String endTime = SimulatedTime.getTimeAfter(startTime, deliverDuration);
+            theGuy.getAllDeliverySession().add(new DeliverySession(cfOrder, startTime, endTime));
+
+            // update process
+            CrabFoodOperator.appendToProcess(String.format("Delivery man %d at %s takes the order of customer %d at branch of %s at %s.",
+                    theGuy.getDeliveryGuyId(),
+                    theGuy.getCurrentPosition(),
+                    cfOrder.getCustomerId(),
+                    cfOrder.getRestaurantName(),
+                    cfOrder.getBranchLocation().toString()));
+
+        }
+    }
+
+    /**
+     * Allocate CrabFood orders to Delivery Men by their distance with branch &
+     * customer
+     *
+     * @param guys List of delivery guys with same previous order finish
+     * delivery time
+     * @param order Order to be allocated to one of these delivery guys
+     */
+    public static void allocateDeliveryByDistance(ArrayList<DeliveryGuy> guys, CrabFoodOrder cfOrder) {
+        // get min distance for delivery guy to get to restaurant branch & then customer
+        int minDistance = Integer.MAX_VALUE;
+        for (DeliveryGuy guy : guys) {
+            int distance = MyGoogleMap.getDistance(guy.getCurrentPosition(), cfOrder.getBranchLocation());
+            minDistance = minDistance > distance ? distance : minDistance;
+        }
+
+        // allocate to first delivery guy with min distance
+        for (DeliveryGuy deliveryGuy : guys) {
+            int distance = MyGoogleMap.getDistance(deliveryGuy.getCurrentPosition(), cfOrder.getBranchLocation());
+            if (minDistance == distance) {
+                String earliest = deliveryGuy.getAllDeliverySession().isEmpty()
+                        ? clock.getTime()
+                        : deliveryGuy.getAllDeliverySession().get(deliveryGuy.getAllDeliverySession().size() - 1).getDeliveryEndTime();
+
+                int goToBranchDuration = MyGoogleMap.getTravelDuration(deliveryGuy.getCurrentPosition(), cfOrder.getBranchLocation());
+                int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
+
+                String startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
+                String endTime = SimulatedTime.getTimeAfter(startTime, deliverDuration);
+
+                deliveryGuy.getAllDeliverySession().add(new DeliverySession(cfOrder, startTime, endTime));
+
+                // update process
+                CrabFoodOperator.appendToProcess(String.format("Delivery man %d at %s takes the order of customer %d at branch of %s at %s.",
+                        deliveryGuy.getDeliveryGuyId(),
+                        deliveryGuy.getCurrentPosition(),
+                        cfOrder.getCustomerId(),
+                        cfOrder.getRestaurantName(),
+                        cfOrder.getBranchLocation().toString()));
+
+                break;
             }
         }
     }
@@ -131,9 +189,6 @@ class CrabFoodOperator {
             if (cfOrder.getRestaurantName().equals(restaurant.getName())) {
                 int distance = MyGoogleMap.getDistance(cfOrder.getDeliveryLocation(), restaurant.getPosition());
                 smallestDistance = smallestDistance > distance ? distance : smallestDistance;
-//                if (smallestDistance > distance) {
-//                    smallestDistance = distance;
-//                }
             }
         }
 
@@ -152,11 +207,6 @@ class CrabFoodOperator {
                     restaurant.getAllRestaurantOrders().add(restaurant.new RestaurantOrder(startTime,
                             endTime,
                             cfOrder.getCustomerCount().getValue()));
-
-                    // update process
-                    CrabFoodOperator.appendToProcess("Branch of "
-                            + restaurant.getName() + " at "
-                            + restaurant.getPosition() + " take the cfOrder.");
 
                     break;
                     /**
@@ -279,6 +329,8 @@ class CrabFoodOperator {
                 DeliveryGuy deliveryGuy = new DeliveryGuy(i);
                 allDeliveryGuys.add(deliveryGuy);
             }
+
+            DeliveryGuy.initPosition();
         } catch (FileNotFoundException ex) {
             System.out.println("\"delivery-guy.txt\" not found.");
         }
@@ -344,6 +396,7 @@ class CrabFoodOperator {
                 crabFoodOrder.setRestaurantName(restaurantName);
                 crabFoodOrder.setDishOrders(dishOrders);
                 crabFoodOrder.setDeliveryLocation(deliveryLocation);
+                crabFoodOrder.setCookTime(crabFoodOrder.calculateCookTime());
 
                 allCrabFoodOrders.add(crabFoodOrder);
             }
@@ -427,7 +480,7 @@ class CrabFoodOperator {
 
         public CrabFoodOrder() {
             this.customerCount.set(customerCount.getValue() + 1);
-            this.customerId = customerCount.getValue() + 1;
+            this.customerId = customerCount.getValue();
             this.orderTime = clock.getTime();
             this.restaurantName = "no name";
             this.dishOrders = new HashMap<>();
