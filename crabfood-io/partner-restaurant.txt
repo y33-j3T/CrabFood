@@ -4,8 +4,10 @@ Crusty Crab
 4 4
 Crabby Patty
 20
+Crabby Meal
+20
 Sailors Surprise
-25
+20
 
 Phum Bucket
 1 3
@@ -14,8 +16,8 @@ Phum Bucket
 Phum Burger
 20
 Phum Fries
-15
-Phum Pie
+20
+Phum Pie 
 10
 
 Burger Krusty
@@ -25,6 +27,6 @@ Burger Krusty
 The Klogger
 20
 Fish Sandwich
-15
+20
 Twisty Lard
-10
+20

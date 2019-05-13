@@ -205,7 +205,7 @@ class CrabFoodOperator {
                     // make allocation
                     String startTime = restaurant.getNextOrderStartPrepTime();
                     String endTime = SimulatedTime.getTimeAfter(startTime, cfOrder.getCookTime());
-                    System.out.println(startTime + " " + endTime);
+//                    System.out.println(startTime + " " + endTime);
                     restaurant.getAllRestaurantOrders().add(restaurant.new RestaurantOrder(startTime,
                             endTime,
                             cfOrder.getCustomerId()));
@@ -265,6 +265,30 @@ class CrabFoodOperator {
         }
     }
 
+    /**
+     * update partner restaurants to "partner-restaurant.txt"
+     */
+    public static void updatePartnerRestaurants() {
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(new FileOutputStream("crabfood-io/partner-restaurant.txt"));
+            ArrayList<String> printedRes = new ArrayList<>();
+            for(Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                if (!printedRes.contains(restaurant.getName())) {
+                    printedRes.add(restaurant.getName());
+                    pw.println(restaurant.getName());
+                    pw.print(Restaurant.toTxtPositions(restaurant.getName()));
+                    pw.print(Restaurant.toTxtDishes(restaurant.getName()) + "\n");
+                }
+            }
+            clock.resetTime();
+        } catch (FileNotFoundException ex) {
+            System.out.println("\"partner-restaurant.txt\" not found.");
+        } finally {
+            pw.close();
+        }
+    }
+    
     /**
      * load previously saved "partner-restaurant.txt"
      */
@@ -346,6 +370,7 @@ class CrabFoodOperator {
         try {
             pw = new PrintWriter(new FileOutputStream("crabfood-io/delivery-guy.txt"));
             pw.print(allDeliveryGuys.size());
+            clock.resetTime();
         } catch (FileNotFoundException ex) {
             System.out.println("\"log.txt\" not found.");
         } finally {
@@ -417,9 +442,7 @@ class CrabFoodOperator {
                     timeList.add(cfOrder.getOrderTime());
                 }
             }
-            System.out.println(timeList);
             CrabFoodOperator.selectionSort(timeList);
-            System.out.println(timeList);
             
             ArrayList<CrabFoodOrder> sortedCfOrders = new ArrayList<>();
             
@@ -449,7 +472,7 @@ class CrabFoodOperator {
                 cfOrder.setCustomerId(sortedCusId.get(i));
                 i++;
             }
-            System.out.println("sorted " + allCrabFoodOrders);
+//            System.out.println("sorted " + allCrabFoodOrders);
         }
     }
     

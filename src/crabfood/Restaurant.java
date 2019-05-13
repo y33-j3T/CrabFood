@@ -37,6 +37,50 @@ class Restaurant {
     }
 
     /**
+     *
+     * @param restaurantName
+     * @return all branch positions of given restaurant
+     */
+    public static String toTxtPositions(String restaurantName) {
+        String result = "";
+        if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+            for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                if (restaurant.getName().equals(restaurantName)) {
+                    String pos = restaurant.getPosition().toString();
+                    pos = pos.substring(1, pos.length()-1).replaceFirst(",", "");
+                    result += pos + "\n";
+                }
+            }
+        }
+//        if (!allAvailableDishes.isEmpty()) {
+//            for (Dish dish : allAvailableDishes) {
+//                result += "\n" + dish.getName();
+//                result += "\n" + dish.getFoodPrepareDuration();
+//                result += "\n";
+//            }
+//        }
+        return result;
+    }
+    
+    public static String toTxtDishes(String restaurantName) {
+        String result = "";
+        if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+            for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                if (restaurant.getName().equals(restaurantName)) {
+                    if (!restaurant.getAllAvailableDishes().isEmpty()){
+                        for (Dish dish : restaurant.getAllAvailableDishes()) {
+                            result += dish.getName() + "\n";
+                            result += dish.getFoodPrepareDuration() + "\n";
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * if the time now is earlier than the finish prep time of the previous
      * order return the finish prep time + 1 min, else return the time now
      *

@@ -119,7 +119,7 @@ public class Main extends Application {
                                     }
                                     processOrder += "from " + cfOrder.getRestaurantName() + ".";
                                     CrabFoodOperator.appendToProcess(processOrder);
-                                    
+
                                     // allocate order
                                     CrabFoodOperator.allocateOrderByDistance(cfOrder);
 
@@ -321,33 +321,74 @@ public class Main extends Application {
         sceneMenu = new Scene(layoutMenu, 1080, 828);
     }
 
+    // Restaurant list in makeSceneMR
+    ListView listRestaurant = new ListView();
+
     private void makeSceneMR(Stage primaryStage) {
         // Restaurant List
-        ListView listRestaurant = new ListView();
-        listRestaurant.getItems().add("restaurant 1");
-        listRestaurant.getItems().add("restaurant 2");
-        listRestaurant.getItems().add("restaurant 3");
+        if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+            for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                if (!listRestaurant.getItems().contains(restaurant.getName())) {
+                    listRestaurant.getItems().add(restaurant.getName());
+                }
+            }
+        }
 
         // Buttons
         Button btnMR_EDIT = new Button("Edit");
         btnMR_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_EDIT.setOnAction(fn -> primaryStage.setScene(sceneER));
-//        ObservableList selectedIndices = listView.getSelectionModel().getSelectedIndices();
+        btnMR_EDIT.setOnAction(fn -> {
+            if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
+                primaryStage.setScene(sceneER);
+            }
+        });
 
         Button btnMR_DELETE = new Button("Delete");
         btnMR_DELETE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        btnMR_EDIT.setOnAction(fn -> primaryStage.setScene(sceneED));
+        btnMR_DELETE.setOnAction(fn -> {
+            if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
+                String resToDelete = listRestaurant.getSelectionModel().getSelectedItem().toString();
+                Iterator itrAllPartnerRestaurant = CrabFoodOperator.getPartnerRestaurants().iterator();
+                while (itrAllPartnerRestaurant.hasNext()) {
+                    Restaurant restaurant = (Restaurant) itrAllPartnerRestaurant.next();
+                    if (restaurant.getName().equals(resToDelete)) {
+                        itrAllPartnerRestaurant.remove();
+                    }
+                }
+            }
+        });
 
         Button btnMR_ADD = new Button("Add");
         btnMR_ADD.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_ADD.setOnAction(fn -> primaryStage.setScene(sceneER));
+        btnMR_ADD.setOnAction(fn -> {
+            // clear selected item if any to avoid going into edit restaurant
+            if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
+                listRestaurant.getSelectionModel().clearSelection();
+            }
+            primaryStage.setScene(sceneER);
+        });
 
         Button btnMR_DONE = new Button("Done");
         btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btnMR_DONE.setOnAction(fn -> primaryStage.setScene(sceneMenu));
+        btnMR_DONE.setOnAction(fn -> {
+            // now update restaurant list externally to txt
+            CrabFoodOperator.updatePartnerRestaurants();
+
+            primaryStage.setScene(sceneMenu);
+        });
+
+        Button btnMR_CANCEL = new Button("Cancel");
+        btnMR_CANCEL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnMR_CANCEL.setOnAction(fn -> {
+            if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
+                listRestaurant.getSelectionModel().clearSelection();
+            }
+
+            primaryStage.setScene(sceneMenu);
+        });
 
         // #
-        HBox layoutMRBottom = new HBox(10, btnMR_EDIT, btnMR_DELETE, btnMR_ADD, btnMR_DONE);
+        HBox layoutMRBottom = new HBox(10, btnMR_CANCEL, btnMR_DELETE, btnMR_EDIT, btnMR_ADD, btnMR_DONE);
         layoutMRBottom.setAlignment(Pos.CENTER);
 
         // ##
@@ -399,7 +440,7 @@ public class Main extends Application {
         });
 
         // #
-        HBox layoutMDBottom = new HBox(10, btnMD_DONE, btnMD_CANCEL);
+        HBox layoutMDBottom = new HBox(10, btnMD_CANCEL, btnMD_DONE);
         layoutMDBottom.setAlignment(Pos.CENTER);
 
         // ##
@@ -601,10 +642,10 @@ public class Main extends Application {
         // Delivery Location
         Label labelDeliveryLoc = new Label("Delivery Location : ");
         Label labelX = new Label("X : ");
-        Spinner spinnerX = new Spinner(1, 100, 1);
+        Spinner spinnerX = new Spinner(0, 100, 1);
         spinnerX.setEditable(true);
         Label labelY = new Label("Y : ");
-        Spinner spinnerY = new Spinner(1, 100, 1);
+        Spinner spinnerY = new Spinner(0, 100, 1);
         spinnerY.setEditable(true);
 
         HBox coordinateLabels = new HBox(10, labelX, spinnerX, labelY, spinnerY);
@@ -668,10 +709,8 @@ public class Main extends Application {
 //                }
 //                processOrder += "from " + comboRestaurant.getSelectionModel().getSelectedItem().toString() + ".";
 //                CrabFoodOperator.appendToProcess(processOrder);
-
 //                // add restaurant-to-handle-order to process
 //                CrabFoodOperator.allocateOrderByDistance(crabFoodOrder);
-
                 // reset all components
                 comboRestaurant.getSelectionModel().clearSelection();
                 comboDish.getItems().clear();
