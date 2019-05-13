@@ -104,7 +104,8 @@ public class Main extends Application {
                         if (!CrabFoodOperator.getAllCrabFoodOrders().isEmpty()) {
                             for (CrabFoodOrder cfOrder : CrabFoodOperator.getAllCrabFoodOrders()) {
                                 if (cfOrder.getOrderTime().equals(clock.getTime())) {
-                                    String processOrder = String.format("Customer %d wants to order ", CrabFoodOrder.getCustomerCount().getValue());
+                                    // take order
+                                    String processOrder = String.format("Customer %d wants to order ", cfOrder.getCustomerId());
                                     int count = 0;
                                     for (Map.Entry mapElement : cfOrder.getDishOrders().entrySet()) {
                                         if (count == cfOrder.getDishOrders().size() - 1) {
@@ -293,19 +294,13 @@ public class Main extends Application {
         TableColumn<CrabFoodOrder, Restaurant> colRestaurant = new TableColumn<>("Restaurant");
         colRestaurant.setCellValueFactory(new PropertyValueFactory<>("restaurant"));
 
-        TableColumn<CrabFoodOrder, Dish> colDish = new TableColumn<>("Dish");
-        colDish.setCellValueFactory(new PropertyValueFactory<>("dish"));
-
-        TableColumn<CrabFoodOrder, Integer> colQuantity = new TableColumn<>("Quantity");
-        colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-
         TableColumn<CrabFoodOrder, String> colStatus = new TableColumn<>("Status");
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         TableView tableOS = new TableView();
         tableOS.setMinSize(500, 400);
         tableOS.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableOS.getColumns().addAll(colCustomerId, colOrderTime, colRestaurant, colDish, colQuantity, colStatus);
+        tableOS.getColumns().addAll(colCustomerId, colOrderTime, colRestaurant, colStatus);
 //        tableOS.setItems(getData());
 
         // #
@@ -656,25 +651,26 @@ public class Main extends Application {
                         Integer.parseInt(spinnerY.getValue().toString())));
                 crabFoodOrder.setCookTime(crabFoodOrder.calculateCookTime());
                 CrabFoodOperator.getAllCrabFoodOrders().add(crabFoodOrder);
+                CrabFoodOperator.sortCfOrders();
 
-                // add order to process
-                String processOrder = String.format("Customer %d wants to order ", CrabFoodOrder.getCustomerCount().getValue());
-                int count = 0;
-                for (Map.Entry mapElement : dishOrders.entrySet()) {
-                    if (count == dishOrders.size() - 1) {
-                        processOrder += dishOrders.size() == 1 ? "" : " & ";
-                        processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
-                    } else {
-                        processOrder += mapElement.getValue() + " " + mapElement.getKey();
-                        processOrder += count == dishOrders.size() - 2 ? "" : ", ";
-                    }
-                    count++;
-                }
-                processOrder += "from " + comboRestaurant.getSelectionModel().getSelectedItem().toString() + ".";
-                CrabFoodOperator.appendToProcess(processOrder);
+//                // add order to process
+//                String processOrder = String.format("Customer %d wants to order ", crabFoodOrder.getCustomerId());
+//                int count = 0;
+//                for (Map.Entry mapElement : dishOrders.entrySet()) {
+//                    if (count == dishOrders.size() - 1) {
+//                        processOrder += dishOrders.size() == 1 ? "" : " & ";
+//                        processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
+//                    } else {
+//                        processOrder += mapElement.getValue() + " " + mapElement.getKey();
+//                        processOrder += count == dishOrders.size() - 2 ? "" : ", ";
+//                    }
+//                    count++;
+//                }
+//                processOrder += "from " + comboRestaurant.getSelectionModel().getSelectedItem().toString() + ".";
+//                CrabFoodOperator.appendToProcess(processOrder);
 
-                // add restaurant-to-handle-order to process
-                CrabFoodOperator.allocateOrderByDistance(crabFoodOrder);
+//                // add restaurant-to-handle-order to process
+//                CrabFoodOperator.allocateOrderByDistance(crabFoodOrder);
 
                 // reset all components
                 comboRestaurant.getSelectionModel().clearSelection();

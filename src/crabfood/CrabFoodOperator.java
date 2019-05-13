@@ -10,7 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -20,14 +22,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 class CrabFoodOperator {
-
+    
     private static ArrayList<Restaurant> partnerRestaurants;
     private static ArrayList<DeliveryGuy> allDeliveryGuys;
     private static ArrayList<CrabFoodOrder> allCrabFoodOrders;
     private static StringProperty log;
     private static StringProperty process;
     private static MyGoogleMap masterMap;
-
+    
     public CrabFoodOperator() {
         // set partner partner restaurants (read now & update later)
         CrabFoodOperator.partnerRestaurants = new ArrayList<>();
@@ -116,7 +118,7 @@ class CrabFoodOperator {
                     }
                 }
             }
-
+            
             int goToBranchDuration = MyGoogleMap.getTravelDuration(theGuy.getCurrentPosition(), cfOrder.getBranchLocation());
             int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
             String startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
@@ -130,7 +132,7 @@ class CrabFoodOperator {
                     cfOrder.getCustomerId(),
                     cfOrder.getRestaurantName(),
                     cfOrder.getBranchLocation().toString()));
-
+            
         }
     }
 
@@ -157,13 +159,13 @@ class CrabFoodOperator {
                 String earliest = deliveryGuy.getAllDeliverySession().isEmpty()
                         ? clock.getTime()
                         : deliveryGuy.getAllDeliverySession().get(deliveryGuy.getAllDeliverySession().size() - 1).getDeliveryEndTime();
-
+                
                 int goToBranchDuration = MyGoogleMap.getTravelDuration(deliveryGuy.getCurrentPosition(), cfOrder.getBranchLocation());
                 int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
-
+                
                 String startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
                 String endTime = SimulatedTime.getTimeAfter(startTime, deliverDuration);
-
+                
                 deliveryGuy.getAllDeliverySession().add(new DeliverySession(cfOrder, startTime, endTime));
 
                 // update process
@@ -173,7 +175,7 @@ class CrabFoodOperator {
                         cfOrder.getCustomerId(),
                         cfOrder.getRestaurantName(),
                         cfOrder.getBranchLocation().toString()));
-
+                
                 break;
             }
         }
@@ -206,8 +208,8 @@ class CrabFoodOperator {
                     System.out.println(startTime + " " + endTime);
                     restaurant.getAllRestaurantOrders().add(restaurant.new RestaurantOrder(startTime,
                             endTime,
-                            cfOrder.getCustomerCount().getValue()));
-
+                            cfOrder.getCustomerId()));
+                    
                     break;
                     /**
                      * if one or more branch have same distance, maybe we could
@@ -269,7 +271,7 @@ class CrabFoodOperator {
     public static void readPartnerRestaurants() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
-
+            
             while (s.hasNextLine()) {
                 Restaurant restaurant = new Restaurant();
 
@@ -285,7 +287,7 @@ class CrabFoodOperator {
                 int posCount = 0;
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
-
+                    
                     if (Pattern.matches("(\\s)*([0-9])+(\\s)+([0-9])+(\\s)*", input)) {
                         String[] coordinateStr = input.trim().split("\\s");
                         int posX = Integer.parseInt(coordinateStr[0]);
@@ -319,17 +321,17 @@ class CrabFoodOperator {
     public static void readAllDeliveryGuys() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/delivery-guy.txt"));
-
+            
             int numDeliveryGuy = 0;
             while (s.hasNextInt()) {
                 numDeliveryGuy = s.nextInt();
             }
-
+            
             for (int i = 1; i <= numDeliveryGuy; i++) {
                 DeliveryGuy deliveryGuy = new DeliveryGuy(i);
                 allDeliveryGuys.add(deliveryGuy);
             }
-
+            
             DeliveryGuy.initPosition();
         } catch (FileNotFoundException ex) {
             System.out.println("\"delivery-guy.txt\" not found.");
@@ -357,7 +359,7 @@ class CrabFoodOperator {
     public static void readAllCrabFoodOrders() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/preset-crabfood-order.txt"));
-
+            
             while (s.hasNextLine()) {
                 CrabFoodOrder crabFoodOrder = new CrabFoodOrder();
 
@@ -372,13 +374,13 @@ class CrabFoodOperator {
 
                 // read delivery location
                 Position deliveryLocation = new Position();
-
+                
                 while (s.hasNextLine()) {
                     String input = s.nextLine();
                     if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+((\\s)+[0-9]+(\\s)*)$", input)) {
                         String dishName = input.replaceFirst("[0-9]+(\\s)*$", "").trim();
                         int quanitity = Integer.parseInt(input.replaceAll("\\D+", ""));
-
+                        
                         dishOrders.put(dishName, quanitity);
                     } else if (Pattern.matches("((\\s)*[A-Za-z]+(\\s)*)+", input)) {
                         dishOrders.put(input.trim(), 1);
@@ -391,70 +393,136 @@ class CrabFoodOperator {
                         break;
                     }
                 }
-
-                crabFoodOrder.setOrderTime(orderTime);
+                
                 crabFoodOrder.setRestaurantName(restaurantName);
                 crabFoodOrder.setDishOrders(dishOrders);
                 crabFoodOrder.setDeliveryLocation(deliveryLocation);
                 crabFoodOrder.setCookTime(crabFoodOrder.calculateCookTime());
-
+                crabFoodOrder.setOrderTime(orderTime);
+                
                 allCrabFoodOrders.add(crabFoodOrder);
+                CrabFoodOperator.sortCfOrders();
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
         }
     }
+    
+    public static void sortCfOrders() {
+        if (!allCrabFoodOrders.isEmpty()) {
+            // sort allCrabFoodOrders by order time 
+            ArrayList<String> timeList = new ArrayList<>();
+            for (CrabFoodOrder cfOrder : allCrabFoodOrders) {
+                if (!timeList.contains(cfOrder.getOrderTime())) {
+                    timeList.add(cfOrder.getOrderTime());
+                }
+            }
+            System.out.println(timeList);
+            CrabFoodOperator.selectionSort(timeList);
+            System.out.println(timeList);
+            
+            ArrayList<CrabFoodOrder> sortedCfOrders = new ArrayList<>();
+            
+            Iterator itrTimeList = timeList.iterator();
+            while (itrTimeList.hasNext()) {
+                String time = (String) itrTimeList.next();
+                for (CrabFoodOrder cfOrder : allCrabFoodOrders) {
+                    if (cfOrder.getOrderTime().equals(time)) {
+                        sortedCfOrders.add(cfOrder);
+                    }
+                }
+                itrTimeList.remove();
+            }
+            
+            allCrabFoodOrders = sortedCfOrders;
 
+            // rearrange customerId according to order time
+            ArrayList<Integer> sortedCusId = new ArrayList<>();
+            for (CrabFoodOrder cfOrder : allCrabFoodOrders) {
+                sortedCusId.add(cfOrder.getCustomerId());
+            }
+            
+            Collections.sort(sortedCusId);
+            
+            int i = 0;
+            for (CrabFoodOrder cfOrder : allCrabFoodOrders) {
+                cfOrder.setCustomerId(sortedCusId.get(i));
+                i++;
+            }
+            System.out.println("sorted " + allCrabFoodOrders);
+        }
+    }
+    
+    public static void selectionSort(ArrayList<String> timeList) {
+        for (int i = 0; i < timeList.size() - 1; i++) {
+            // find min in the list[i...list.length-1]
+            String currentMin = timeList.get(i);
+            int currentMinIndex = i;
+            for (int j = i + 1; j < timeList.size(); j++) {
+                if (SimulatedTime.compareStringTime(currentMin, timeList.get(j)) > 0) {
+                    currentMin = timeList.get(j);
+                    currentMinIndex = j;
+                }
+            }
+
+            // swap timeList[i] with timeList[currentMinIndex] if necessary;
+            if (currentMinIndex != i) {
+                timeList.set(currentMinIndex, timeList.get(i));
+                timeList.set(i, currentMin);
+            }
+        }
+    }
+    
     public static StringProperty getProcess() {
         return process;
     }
-
+    
     public static void setProcess(StringProperty process) {
         CrabFoodOperator.process = process;
     }
-
+    
     public static StringProperty getLog() {
         return log;
     }
-
+    
     public static void setLog(StringProperty log) {
         CrabFoodOperator.log = log;
     }
-
+    
     public static MyGoogleMap getMasterMap() {
         return masterMap;
     }
-
+    
     public static void setMasterMap(MyGoogleMap masterMap) {
         CrabFoodOperator.masterMap = masterMap;
     }
-
+    
     public static ArrayList<Restaurant> getPartnerRestaurants() {
         return partnerRestaurants;
     }
-
+    
     public static void setPartnerRestaurants(ArrayList<Restaurant> partnerRestaurants) {
         CrabFoodOperator.partnerRestaurants = partnerRestaurants;
     }
-
+    
     public static ArrayList<CrabFoodOrder> getAllCrabFoodOrders() {
         return allCrabFoodOrders;
     }
-
+    
     public static void setAllCrabFoodOrders(ArrayList<CrabFoodOrder> allCrabFoodOrders) {
         CrabFoodOperator.allCrabFoodOrders = allCrabFoodOrders;
     }
-
+    
     public static ArrayList<DeliveryGuy> getAllDeliveryGuys() {
         return allDeliveryGuys;
     }
-
+    
     public static void setAllDeliveryGuys(ArrayList<DeliveryGuy> allDeliveryGuys) {
         CrabFoodOperator.allDeliveryGuys = allDeliveryGuys;
     }
-
+    
     static class CrabFoodOrder {
-
+        
         private final String[] statusCollection = {"New Order", "Preparing...", "Delivering...", "Delivered"};
         private static IntegerProperty customerCount = new SimpleIntegerProperty(0);
         private Integer customerId;
@@ -465,7 +533,7 @@ class CrabFoodOperator {
         private Position branchLocation;
         private String status;
         private int cookTime;
-
+        
         public CrabFoodOrder(String restaurantName, HashMap<String, Integer> dishOrders, Position deliveryLocation) {
             this.customerCount.set(customerCount.getValue() + 1);
             this.customerId = customerCount.getValue();
@@ -477,7 +545,7 @@ class CrabFoodOperator {
             this.status = statusCollection[0];
             this.cookTime = -1;
         }
-
+        
         public CrabFoodOrder() {
             this.customerCount.set(customerCount.getValue() + 1);
             this.customerId = customerCount.getValue();
@@ -489,27 +557,27 @@ class CrabFoodOperator {
             this.status = statusCollection[0];
             this.cookTime = -1;
         }
-
+        
         public Position getBranchLocation() {
             return branchLocation;
         }
-
+        
         public void setBranchLocation(Position branchLocation) {
             this.branchLocation = branchLocation;
         }
-
+        
         public String getStatus() {
             return status;
         }
-
+        
         public void setStatus(String status) {
             this.status = status;
         }
-
+        
         public int calculateCookTime() {
             int duration = -1;
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                if (restaurantName.equals(restaurant.getName())) {
+                if (restaurantName.trim().equals(restaurant.getName().trim())) {
                     for (Map.Entry dish : dishOrders.entrySet()) {
                         int timeNeeded = restaurant.getCookTime(dish.getKey().toString()) * Integer.parseInt(dish.getValue().toString());
                         if (duration < timeNeeded) {
@@ -522,19 +590,19 @@ class CrabFoodOperator {
             }
             return duration;
         }
-
+        
         public int getCookTime() {
             return cookTime;
         }
-
+        
         public void setCookTime(int cookTime) {
             this.cookTime = cookTime;
         }
-
+        
         public String[] getStatusCollection() {
             return statusCollection;
         }
-
+        
         public String toString() {
             String result = "";
             result += customerId + "\n";
@@ -564,54 +632,54 @@ class CrabFoodOperator {
             result += deliveryLocation + "\n";
             return result;
         }
-
+        
         public Integer getCustomerId() {
             return customerId;
         }
-
+        
         public void setCustomerId(Integer customerId) {
             this.customerId = customerId;
         }
-
+        
         public static IntegerProperty getCustomerCount() {
             return customerCount;
         }
-
+        
         public static void setCustomerCount(IntegerProperty customerCount) {
             CrabFoodOrder.customerCount = customerCount;
         }
-
+        
         public String getOrderTime() {
             return orderTime;
         }
-
+        
         public void setOrderTime(String orderTime) {
             this.orderTime = orderTime;
         }
-
+        
         public String getRestaurantName() {
             return restaurantName;
         }
-
+        
         public void setRestaurantName(String restaurantName) {
             this.restaurantName = restaurantName;
         }
-
+        
         public HashMap<String, Integer> getDishOrders() {
             return dishOrders;
         }
-
+        
         public void setDishOrders(HashMap<String, Integer> dishOrders) {
             this.dishOrders = dishOrders;
         }
-
+        
         public Position getDeliveryLocation() {
             return deliveryLocation;
         }
-
+        
         public void setDeliveryLocation(Position deliveryLocation) {
             this.deliveryLocation = deliveryLocation;
         }
-
+        
     }
 }

@@ -57,7 +57,7 @@ class Restaurant {
 
     public int getCookTime(String dishName) {
         for (Dish dish : allAvailableDishes) {
-            if (dishName.equals(dish.getName())) {
+            if (dishName.trim().equals(dish.getName().trim())) {
                 return dish.getFoodPrepareDuration();
             }
         }
