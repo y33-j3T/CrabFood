@@ -103,9 +103,10 @@ public class SimulatedTime {
         this.setMinute((this.getMinute() + minuteToAdd) % 60);
     }
 
-    public int differenceTime(String timeStr) {
-        SimulatedTime time = parseTimeToSimulatedTime(timeStr);
-        return Math.abs((this.getHour() - time.getHour()) * 60) + Math.abs(this.getMinute() - time.getMinute());
+    public static int differenceTime(String time1str, String time2str) {
+        SimulatedTime time1 = parseTimeToSimulatedTime(time1str);
+        SimulatedTime time2 = parseTimeToSimulatedTime(time2str);
+        return Math.abs(time1.getHour()*60 + time1.getMinute() - (time2.getHour()*60 + time2.getMinute()));
     }
 
     public String getTimeAfter(int minutePassed) {

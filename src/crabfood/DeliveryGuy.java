@@ -84,7 +84,7 @@ class DeliveryGuy {
             this.deliveryEndPosition = CrabFoodOrderTBD.getDeliveryLocation();
             this.deliveryStartTime = deliveryStartTime;
             this.deliveryEndTime = deliveryEndTime;
-            this.deliveryDuration = SimulatedTime.compareStringTime(deliveryStartTime, deliveryEndTime);
+            this.deliveryDuration = SimulatedTime.differenceTime(deliveryStartTime, deliveryEndTime);
         }
         
         public int getDeliveryDuration() {

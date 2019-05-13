@@ -152,7 +152,7 @@ class Restaurant {
 
         private String startTime = "-1";
         private String endTime = "-1";
-        private int duration = SimulatedTime.parseTimeToSimulatedTime(startTime).differenceTime(endTime);
+        private int duration = SimulatedTime.differenceTime(startTime, endTime);
         private int customerId = -1;
 
         public RestaurantOrder(String startTime, String endTime, int customerId) {
