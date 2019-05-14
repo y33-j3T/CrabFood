@@ -106,7 +106,7 @@ public class SimulatedTime {
     public static int differenceTime(String time1str, String time2str) {
         SimulatedTime time1 = parseTimeToSimulatedTime(time1str);
         SimulatedTime time2 = parseTimeToSimulatedTime(time2str);
-        return Math.abs(time1.getHour()*60 + time1.getMinute() - (time2.getHour()*60 + time2.getMinute()));
+        return Math.abs(time1.getHour() * 60 + time1.getMinute() - (time2.getHour() * 60 + time2.getMinute()));
     }
 
     public String getTimeAfter(int minutePassed) {

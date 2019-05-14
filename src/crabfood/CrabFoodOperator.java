@@ -20,9 +20,13 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 class CrabFoodOperator {
 
+    private static IntegerProperty totalCrabFoodOrder;
+    private static ArrayList<CrabFoodOrder> allPresetCrabFoodOrders;
     private static ArrayList<Restaurant> partnerRestaurants;
     private static ArrayList<DeliveryGuy> allDeliveryGuys;
     private static ArrayList<CrabFoodOrder> allCrabFoodOrders;
@@ -31,6 +35,8 @@ class CrabFoodOperator {
     private static MyGoogleMap masterMap;
 
     public CrabFoodOperator() {
+        CrabFoodOperator.totalCrabFoodOrder = new SimpleIntegerProperty(0);
+
         // set partner partner restaurants (read now & update later)
         CrabFoodOperator.partnerRestaurants = new ArrayList<>();
         readPartnerRestaurants();
@@ -43,9 +49,12 @@ class CrabFoodOperator {
         CrabFoodOperator.allDeliveryGuys = new ArrayList<>();
         readAllDeliveryGuys();
 
-        // set all Crabfood orders (read now | update later)
+        // set all preset CrabFood orders
+        CrabFoodOperator.allPresetCrabFoodOrders = new ArrayList<>();
+        readAllPresetCrabFoodOrders();
+
+        // initalize CrabFood orders
         CrabFoodOperator.allCrabFoodOrders = new ArrayList<>();
-        readAllCrabFoodOrders();
 
         // set log (read now & update later)
         log = new SimpleStringProperty("");
@@ -217,7 +226,7 @@ class CrabFoodOperator {
                         CrabFoodOperator.appendToProcess(String.format("Branch of %s at %s takes the order.",
                                 cfOrder.getRestaurantName(),
                                 cfOrder.getBranchLocation()));
-                        
+
                         break;
                         /**
                          * if one or more branch have same distance, maybe we
@@ -390,7 +399,7 @@ class CrabFoodOperator {
     /**
      * Load preset CrabFood orders from "crabfood-order.txt" Time must be sorted
      */
-    public static void readAllCrabFoodOrders() {
+    public static void readAllPresetCrabFoodOrders() {
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/preset-crabfood-order.txt"));
 
@@ -434,8 +443,7 @@ class CrabFoodOperator {
                 crabFoodOrder.setCookTime(crabFoodOrder.calculateCookTime());
                 crabFoodOrder.setOrderTime(orderTime);
 
-                allCrabFoodOrders.add(crabFoodOrder);
-                CrabFoodOperator.sortCfOrders();
+                allPresetCrabFoodOrders.add(crabFoodOrder);
             }
         } catch (FileNotFoundException e) {
             System.out.println("\"crabfood-order.txt\" not found.");
@@ -504,6 +512,22 @@ class CrabFoodOperator {
         }
     }
 
+    public static IntegerProperty getTotalCrabFoodOrder() {
+        return totalCrabFoodOrder;
+    }
+
+    public static void setTotalCrabFoodOrder(IntegerProperty totalCrabFoodOrder) {
+        CrabFoodOperator.totalCrabFoodOrder = totalCrabFoodOrder;
+    }
+
+    public static ArrayList<CrabFoodOrder> getAllPresetCrabFoodOrders() {
+        return allPresetCrabFoodOrders;
+    }
+
+    public static void setAllPresetCrabFoodOrders(ArrayList<CrabFoodOrder> allPresetCrabFoodOrders) {
+        CrabFoodOperator.allPresetCrabFoodOrders = allPresetCrabFoodOrders;
+    }
+
     public static StringProperty getProcess() {
         return process;
     }
@@ -552,40 +576,37 @@ class CrabFoodOperator {
         CrabFoodOperator.allDeliveryGuys = allDeliveryGuys;
     }
 
-    static class CrabFoodOrder {
+    public static class CrabFoodOrder {
 
-        private final String[] statusCollection = {"New Order", "Preparing...", "Delivering...", "Delivered"};
-        private static IntegerProperty customerCount = new SimpleIntegerProperty(0);
-        private Integer customerId;
+        // if not stated "later", then set upon creation
+        private Integer customerId; // set later
         private String orderTime;
         private String restaurantName;
         private HashMap<String, Integer> dishOrders;
         private Position deliveryLocation;
-        private Position branchLocation;
-        private String status;
+        private Position branchLocation; // set later
+        private StringProperty status; // set later
         private int cookTime;
 
         public CrabFoodOrder(String restaurantName, HashMap<String, Integer> dishOrders, Position deliveryLocation) {
-            this.customerCount.set(customerCount.getValue() + 1);
-            this.customerId = customerCount.getValue();
+            this.customerId = -1;
             this.orderTime = clock.getTime();
             this.restaurantName = restaurantName;
             this.dishOrders = dishOrders;
             this.deliveryLocation = deliveryLocation;
             this.branchLocation = new Position(0, 0);
-            this.status = statusCollection[0];
+            this.status = new SimpleStringProperty("no status");
             this.cookTime = -1;
         }
 
         public CrabFoodOrder() {
-            this.customerCount.set(customerCount.getValue() + 1);
-            this.customerId = customerCount.getValue();
+            this.customerId = -1;
             this.orderTime = clock.getTime();
             this.restaurantName = "no name";
             this.dishOrders = new HashMap<>();
             this.deliveryLocation = new Position(0, 0);
             this.branchLocation = new Position(0, 0);
-            this.status = statusCollection[0];
+            this.status = new SimpleStringProperty("no status");
             this.cookTime = -1;
         }
 
@@ -597,11 +618,11 @@ class CrabFoodOperator {
             this.branchLocation = branchLocation;
         }
 
-        public String getStatus() {
+        public StringProperty getStatus() {
             return status;
         }
 
-        public void setStatus(String status) {
+        public void setStatus(StringProperty status) {
             this.status = status;
         }
 
@@ -628,10 +649,6 @@ class CrabFoodOperator {
 
         public void setCookTime(int cookTime) {
             this.cookTime = cookTime;
-        }
-
-        public String[] getStatusCollection() {
-            return statusCollection;
         }
 
         public String toString() {
@@ -670,14 +687,6 @@ class CrabFoodOperator {
 
         public void setCustomerId(Integer customerId) {
             this.customerId = customerId;
-        }
-
-        public static IntegerProperty getCustomerCount() {
-            return customerCount;
-        }
-
-        public static void setCustomerCount(IntegerProperty customerCount) {
-            CrabFoodOrder.customerCount = customerCount;
         }
 
         public String getOrderTime() {
