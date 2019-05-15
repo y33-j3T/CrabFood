@@ -7,18 +7,21 @@ import java.util.ArrayList;
 
 class DeliveryGuy {
 
-    private int deliveryGuyId = 0;
+    private int deliveryGuyId;
+    private Position originalPosition;
     private Position currentPosition;
     private ArrayList<DeliverySession> allDeliverySession;
 
     public DeliveryGuy(int deliveryGuyId, Position currentPosition) {
         this.deliveryGuyId = deliveryGuyId;
+        this.originalPosition = new Position(0, 0);
         this.currentPosition = currentPosition;
         this.allDeliverySession = new ArrayList<>();
     }
 
     public DeliveryGuy(int deliveryGuyId) {
         this.deliveryGuyId = deliveryGuyId;
+        this.originalPosition = new Position(0, 0);
         this.currentPosition = new Position(0, 0);
         this.allDeliverySession = new ArrayList<>();
     }
@@ -38,6 +41,7 @@ class DeliveryGuy {
 
         for (DeliveryGuy guy : CrabFoodOperator.getAllDeliveryGuys()) {
             guy.setCurrentPosition(new Position(x, y));
+            guy.setOriginalPosition(new Position(x, y));
         }
     }
 
@@ -51,13 +55,52 @@ class DeliveryGuy {
                     for (DeliverySession session : guy.getAllDeliverySession()) {
                         if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) < 0) {
                             // move to restaurant branch to "fetch prepared order"
+                            if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() != 0) {
+                                if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() < 0) {
+                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
+                                } else if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() > 0) {
+                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
+                                }
+                            } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() != 0) {
+                                if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() < 0) {
+                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
+                                } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() > 0) {
+                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
+                                }
+                            }
                         } else if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) >= 0
-                                && SimulatedTime.compareStringTime(time1, time2)) {
-
+                                && SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryEndTime()) < 0) {
+                            // move from restaurant branch to delivery location
+                            if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() != 0) {
+                                if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() < 0) {
+                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
+                                } else if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() > 0) {
+                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
+                                }
+                            } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() != 0) {
+                                if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() < 0) {
+                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
+                                } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() > 0) {
+                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
+                                }
+                            }
                         }
-
                     }
                 } else {
+                    // move back to midpoint of all restaurants
+                    if (guy.getCurrentPosition().getPosX() - guy.getOriginalPosition().getPosX() != 0) {
+                        if (guy.getCurrentPosition().getPosX() - guy.getOriginalPosition().getPosX() < 0) {
+                            guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
+                        } else if (guy.getCurrentPosition().getPosX() - guy.getOriginalPosition().getPosX() > 0) {
+                            guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
+                        }
+                    } else if (guy.getCurrentPosition().getPosY() - guy.getOriginalPosition().getPosY() != 0) {
+                        if (guy.getCurrentPosition().getPosY() - guy.getOriginalPosition().getPosY() < 0) {
+                            guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
+                        } else if (guy.getCurrentPosition().getPosY() - guy.getOriginalPosition().getPosY() > 0) {
+                            guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
+                        }
+                    }
 
                 }
             }
@@ -67,6 +110,14 @@ class DeliveryGuy {
     @Override
     public String toString() {
         return String.format("Delivery Man ID: %d\nCurrent Position: %s", deliveryGuyId, currentPosition.toString());
+    }
+
+    public Position getOriginalPosition() {
+        return originalPosition;
+    }
+
+    public void setOriginalPosition(Position originalPosition) {
+        this.originalPosition = originalPosition;
     }
 
     public int getDeliveryGuyId() {
