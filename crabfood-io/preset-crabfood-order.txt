@@ -3,12 +3,12 @@ Phum Bucket
 Phum Pie 1
 5 0
 
-00:10
-Crusty Crab
-Crabby Patty
-5 5
+00:05
+Burger Krusty
+The Klogger 1
+5 0
 
-00:21
+00:05
 Crusty Crab
-Crabby Patty
-5 5
+Crabby Patty 1
+5 0
