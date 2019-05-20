@@ -49,10 +49,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    IntegerProperty stageHeight = new SimpleIntegerProperty(828);
+    IntegerProperty stageWidth = new SimpleIntegerProperty(1500);
 
     public static void main(String[] args) {
         launch(args);
@@ -64,8 +69,14 @@ public class Main extends Application {
     // make CrabFood operator
     public static CrabFoodOperator operator = new CrabFoodOperator();
 
+    // closing time
+    String closeTime = "21:20";
+
     // all scenes
-    Scene sceneMenu, sceneMR, sceneMD, sceneVOL, sceneSC, sceneER, sceneEDs, sceneED;
+    Scene sceneMenu, sceneMR, sceneMD, sceneVOL, sceneSC, sceneVM, sceneER, sceneEDs, sceneED;
+
+    // Menu time stamp
+    Text txtTimeStamp = new Text();
 
     // status table
     TableView tableOS = new TableView();
@@ -106,6 +117,15 @@ public class Main extends Application {
     // Flag to indicate add operation on dish
     boolean flagAddDish = false;
 
+    // Button to simulate customer
+    Button btnSC = new Button("Simulate Customer");
+
+    // Order time in simulate customer
+    Text txtOrderTime = new Text();
+
+    // Grid area for view map
+    GridPane gridMap = new GridPane();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Thread timeThread = new Thread(new Runnable() {
@@ -126,63 +146,81 @@ public class Main extends Application {
                             cfOrderList.clear();
 
                             // new log section
-                            String logHeader = String.format("\n| %11s | %10s | %21s | %14s | %16s | %16s | %-20s | %6s ",
+                            String logHeader = String.format("\n\n| %11s | %10s | %21s | %14s | %16s | %16s | %14s | %-20s | %6s ",
                                     "Customer ID", "Order Time", "Finished Cooking Time",
                                     "Delivered Time", "Cooking Duration", "Deliver Duration",
-                                    "Restaurant", "Branch");
+                                    "Total Duration", "Restaurant", "Branch");
                             CrabFoodOperator.appendToLog(logHeader);
+
+                            // enable simulate customer button
+                            btnSC.setDisable(false);
+
+                            // partially reset program
+                            CrabFoodOperator.getTotalCrabFoodOrder().setValue(0);
+
+                            CrabFoodOperator.getAllPresetCrabFoodOrders().clear();
+                            CrabFoodOperator.readAllPresetCrabFoodOrders();
+
+                            CrabFoodOperator.getAllCrabFoodOrders().clear();
                         }
 
-                        // check for start of preset CrabFoodOrders to add into main list when time comes
-                        if (!CrabFoodOperator.getAllPresetCrabFoodOrders().isEmpty()) {
-                            Iterator itrCfOrder = CrabFoodOperator.getAllPresetCrabFoodOrders().iterator();
-                            while (itrCfOrder.hasNext()) {
-                                CrabFoodOrder cfOrder = (CrabFoodOrder) itrCfOrder.next();
-                                if (cfOrder.getOrderTime().equals(clock.getTime())) {
-                                    // update variables in preset CrabFood order
-                                    cfOrder.getStatus().setValue("New order");
-                                    cfOrder.setCustomerId(CrabFoodOperator.getTotalCrabFoodOrder().get() + 1);
+                        if (clock.getTime().equals(closeTime)) {
+                            btnSC.setDisable(true);
+                            CrabFoodOperator.appendToProcess("CrabFood is done for the day. Stopped accepting new orders.");
+                        }
 
-                                    // update total number of CrabFood orders
-                                    CrabFoodOperator.getTotalCrabFoodOrder().set(CrabFoodOperator.getTotalCrabFoodOrder().get() + 1);
+                        if (SimulatedTime.compareStringTime(clock.getTime(), closeTime) < 0) {
+                            // check for start of preset CrabFoodOrders to add into main list when time comes
+                            if (!CrabFoodOperator.getAllPresetCrabFoodOrders().isEmpty()) {
+                                Iterator itrCfOrder = CrabFoodOperator.getAllPresetCrabFoodOrders().iterator();
+                                while (itrCfOrder.hasNext()) {
+                                    CrabFoodOrder cfOrder = (CrabFoodOrder) itrCfOrder.next();
+                                    if (cfOrder.getOrderTime().equals(clock.getTime())) {
+                                        // update variables in preset CrabFood order
+                                        cfOrder.getStatus().setValue("New order");
+                                        cfOrder.setCustomerId(CrabFoodOperator.getTotalCrabFoodOrder().get() + 1);
 
-                                    // add it to main list of CrabFood orders
-                                    CrabFoodOperator.getAllCrabFoodOrders().add(cfOrder);
-                                    CrabFoodOperator.sortCfOrders();
+                                        // update total number of CrabFood orders
+                                        CrabFoodOperator.getTotalCrabFoodOrder().set(CrabFoodOperator.getTotalCrabFoodOrder().get() + 1);
 
-                                    // drop it from the preset list
-                                    itrCfOrder.remove();
+                                        // add it to main list of CrabFood orders
+                                        CrabFoodOperator.getAllCrabFoodOrders().add(cfOrder);
+                                        CrabFoodOperator.sortCfOrders();
+
+                                        // drop it from the preset list
+                                        itrCfOrder.remove();
+                                    }
                                 }
                             }
-                        }
 
-                        // check for start of CrabFoodOrders
-                        if (!CrabFoodOperator.getAllCrabFoodOrders().isEmpty()) {
-                            for (CrabFoodOrder cfOrder : CrabFoodOperator.getAllCrabFoodOrders()) {
-                                if (cfOrder.getOrderTime().equals(clock.getTime())) {
-                                    // update process
-                                    String processOrder = String.format("Customer %d wants to order ", cfOrder.getCustomerId());
-                                    int count = 0;
-                                    for (Map.Entry mapElement : cfOrder.getDishOrders().entrySet()) {
-                                        if (count == cfOrder.getDishOrders().size() - 1) {
-                                            processOrder += cfOrder.getDishOrders().size() == 1 ? "" : " & ";
-                                            processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
-                                        } else {
-                                            processOrder += mapElement.getValue() + " " + mapElement.getKey();
-                                            processOrder += count == cfOrder.getDishOrders().size() - 2 ? "" : ", ";
+                            // check for start of CrabFoodOrders (this is the main list)
+                            if (!CrabFoodOperator.getAllCrabFoodOrders().isEmpty()) {
+                                for (CrabFoodOrder cfOrder : CrabFoodOperator.getAllCrabFoodOrders()) {
+                                    if (cfOrder.getOrderTime().equals(clock.getTime())) {
+                                        // update process
+                                        String processOrder = String.format("Customer %d wants to order ", cfOrder.getCustomerId());
+                                        int count = 0;
+                                        for (Map.Entry mapElement : cfOrder.getDishOrders().entrySet()) {
+                                            if (count == cfOrder.getDishOrders().size() - 1) {
+                                                processOrder += cfOrder.getDishOrders().size() == 1 ? "" : " & ";
+                                                processOrder += mapElement.getValue() + " " + mapElement.getKey() + " ";
+                                            } else {
+                                                processOrder += mapElement.getValue() + " " + mapElement.getKey();
+                                                processOrder += count == cfOrder.getDishOrders().size() - 2 ? "" : ", ";
+                                            }
+                                            count++;
                                         }
-                                        count++;
-                                    }
-                                    processOrder += "from " + cfOrder.getRestaurantName() + ".";
-                                    CrabFoodOperator.appendToProcess(processOrder);
+                                        processOrder += "from " + cfOrder.getRestaurantName() + ".";
+                                        CrabFoodOperator.appendToProcess(processOrder);
 
-                                    // allocate order
-                                    cfOrder.getStatus().setValue("New order");
-                                    CrabFoodOperator.allocateOrderByDistance(cfOrder);
+                                        // allocate order
+                                        cfOrder.getStatus().setValue("New order");
+                                        CrabFoodOperator.allocateOrderByDistance(cfOrder);
 
-                                    // add to status table
-                                    if (!cfOrderList.contains(cfOrder)) {
-                                        cfOrderList.add(cfOrder);
+                                        // add to status table
+                                        if (!cfOrderList.contains(cfOrder)) {
+                                            cfOrderList.add(cfOrder);
+                                        }
                                     }
                                 }
                             }
@@ -289,11 +327,13 @@ public class Main extends Application {
 
                                             // key in to log 
                                             CrabFoodOperator.appendToLog(
-                                                    String.format("\n| %-11s | %-10s | %-21s | %-14s | %-16s | %-16s | %-20s | %-6s ",
+                                                    String.format("\n| %-11s | %-10s | %-21s | %-14s | %-16s | %-16s | %-14s | %-20s | %-6s ",
                                                             endCfOrder.getCustomerId(), endCfOrder.getOrderTime(),
                                                             SimulatedTime.getTimeAfter(endCfOrder.getOrderTime(), endCfOrder.getCookTime()),
                                                             session.getDeliveryEndTime(), endCfOrder.getCookTime(),
-                                                            session.getDeliveryDuration(), endCfOrder.getRestaurantName(),
+                                                            session.getDeliveryDuration(),
+                                                            SimulatedTime.differenceTime(endCfOrder.getOrderTime(), session.getDeliveryEndTime()),
+                                                            endCfOrder.getRestaurantName(),
                                                             endCfOrder.getBranchLocation()));
 
                                             // remove session
@@ -315,6 +355,12 @@ public class Main extends Application {
                                 }
                             }
                         }
+
+                        // update menu time stamp
+                        txtTimeStamp.setText(clock.getTime());
+
+                        // update order time in simulate customer
+                        txtOrderTime.setText(clock.getTime());
 
                         // make delivery men move
                         DeliveryGuy.updateAllDeliveryGuyPos();
@@ -349,6 +395,9 @@ public class Main extends Application {
 
         // VIEW ORDER LOG
         makeSceneVOL(primaryStage);
+
+        //VIEW MAP
+        makeSceneVM(primaryStage);
 
         // SIMULATE CUSTOMER
         makeSceneSC(primaryStage);
@@ -385,19 +434,56 @@ public class Main extends Application {
         btnVOL.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnVOL.setOnAction(fn -> primaryStage.setScene(sceneVOL));
 
-        Button btnSC = new Button("Simulate Customer");
+        Button btnVM = new Button("View Map");
+        btnVM.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnVM.setOnAction(fn -> {
+            ArrayList<Position> branchLoc = new ArrayList<>();
+            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                    branchLoc.add(restaurant.getPosition());
+                }
+            }
+
+            for (int i = 0; i < CrabFoodOperator.getMasterMap().getWidth(); i++) {
+                for (int j = 0; j < CrabFoodOperator.getMasterMap().getHeight(); j++) {
+                    Tile tile = new Tile(String.valueOf(CrabFoodOperator.getMasterMap().getSymbolAt(i, j)));
+                    GridPane.setConstraints(tile, i, j);
+                    tile.colorTileGrey();
+                    gridMap.getChildren().addAll(tile);
+
+                    for (Position pos : branchLoc) {
+                        if (i == pos.getPosX() && j == pos.getPosY()) {
+                            tile.colorTileLightGrey();
+                        } 
+                    }
+                }
+            }
+            primaryStage.setScene(sceneVM);
+        });
+
         btnSC.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnSC.setOnAction(fn -> primaryStage.setScene(sceneSC));
 
+        txtTimeStamp.setTextAlignment(TextAlignment.CENTER);
+        txtTimeStamp.setFont(Font.font("Monospace", 30));
+
         // #
-        VBox layoutMenuLeft = new VBox(10, btnMR, btnMD, btnVOL, btnSC);
+        VBox layoutMenuLeft = new VBox(10, btnMR, btnMD, btnVOL, btnVM, btnSC, txtTimeStamp);
+        layoutMenuLeft.setAlignment(Pos.TOP_CENTER);
 
         // Process Log
         TextArea txtareaPL = new TextArea();
         txtareaPL.setMinSize(500, 400);
         txtareaPL.setEditable(false);
-        txtareaPL.setFont(Font.font("Monospace", 15));
+        txtareaPL.setFont(Font.font("Monospace", 20));
         txtareaPL.textProperty().bind(CrabFoodOperator.getProcess());
+        CrabFoodOperator.getProcess().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                txtareaPL.selectPositionCaret(txtareaPL.getLength());
+                txtareaPL.deselect();
+            }
+        });
 
         // Order Status
         TableColumn<CrabFoodOrder, Integer> colCustomerId = new TableColumn<>("Customer ID");
@@ -419,6 +505,12 @@ public class Main extends Application {
         tableOS.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tableOS.getColumns().addAll(colCustomerId, colOrderTime, colRestaurant, colBranch, colStatus);
         tableOS.setItems(cfOrderList);
+        cfOrderList.addListener(new ListChangeListener<CrabFoodOrder>() {
+            @Override
+            public void onChanged(ListChangeListener.Change<? extends CrabFoodOrder> c) {
+                tableOS.scrollTo(cfOrderList.size() - 1);
+            }
+        });
 
         // #
         VBox layoutMenuRight = new VBox(10, txtareaPL, tableOS);
@@ -435,7 +527,7 @@ public class Main extends Application {
         layoutMenu.setHgap(10);
         layoutMenu.getChildren().addAll(layoutMenuLeft, layoutMenuRight);
 
-        sceneMenu = new Scene(layoutMenu, 1080, 828);
+        sceneMenu = new Scene(layoutMenu, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneMR(Stage primaryStage) {
@@ -475,6 +567,7 @@ public class Main extends Application {
                     }
                 }
 
+                gridRestaurantLoc.getChildren().clear();
                 for (int i = 0; i < CrabFoodOperator.getMasterMap().getWidth(); i++) {
                     for (int j = 0; j < CrabFoodOperator.getMasterMap().getHeight(); j++) {
                         Tile tile = new Tile(String.valueOf(CrabFoodOperator.getMasterMap().getSymbolAt(i, j)));
@@ -533,48 +626,75 @@ public class Main extends Application {
                 listRestaurant.getSelectionModel().clearSelection();
             }
 
+            // get ready sceneER (add branch locations)
+            ArrayList<Position> branchLoc = new ArrayList<>(); // branch of restaurant to add
+            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                    branchLoc.add(restaurant.getPosition());
+                }
+            }
+            gridRestaurantLoc.getChildren().clear();
+            for (int i = 0; i < CrabFoodOperator.getMasterMap().getWidth(); i++) {
+                for (int j = 0; j < CrabFoodOperator.getMasterMap().getHeight(); j++) {
+                    Tile tile = new Tile(String.valueOf(CrabFoodOperator.getMasterMap().getSymbolAt(i, j)));
+                    GridPane.setConstraints(tile, i, j);
+                    gridRestaurantLoc.getChildren().addAll(tile);
+
+                    for (Position pos : branchLoc) {
+                        if (i == pos.getPosX() && j == pos.getPosY()) {
+                            tile.colorTileGrey();
+                        }
+                    }
+                }
+            }
+            branchLoc.clear();
+
             flagAddRes = true;
+
             primaryStage.setScene(sceneER);
         });
 
         Button btnMR_DONE = new Button("Done");
         btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnMR_DONE.setOnAction(fn -> {
-            // clear selected items
-            if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
-                listRestaurant.getSelectionModel().clearSelection();
-            }
+            if (!obsListRestaurant.isEmpty()) {
 
-            // if obsListRestaurant does not contain certain restaurants, delete them
-            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                Iterator itrAllPartnerRestaurant = CrabFoodOperator.getPartnerRestaurants().iterator();
-                while (itrAllPartnerRestaurant.hasNext()) {
-                    Restaurant restaurant = (Restaurant) itrAllPartnerRestaurant.next();
-                    if (!obsListRestaurant.contains(restaurant.getName())) {
-                        itrAllPartnerRestaurant.remove();
+                // clear selected items
+                if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
+                    listRestaurant.getSelectionModel().clearSelection();
+                }
+
+                // if obsListRestaurant does not contain certain restaurants, delete them
+                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                    Iterator itrAllPartnerRestaurant = CrabFoodOperator.getPartnerRestaurants().iterator();
+                    while (itrAllPartnerRestaurant.hasNext()) {
+                        Restaurant restaurant = (Restaurant) itrAllPartnerRestaurant.next();
+                        if (!obsListRestaurant.contains(restaurant.getName())) {
+                            itrAllPartnerRestaurant.remove();
+                        }
                     }
                 }
+
+                // update stuff to txt and read again to restart program
+                CrabFoodOperator.getTotalCrabFoodOrder().setValue(0);
+
+                CrabFoodOperator.updatePartnerRestaurants();
+                CrabFoodOperator.readPartnerRestaurants();
+
+                CrabFoodOperator.getMasterMap().updateMap();
+
+                CrabFoodOperator.getAllDeliveryGuys().clear();
+                CrabFoodOperator.readAllDeliveryGuys();
+
+                CrabFoodOperator.getAllPresetCrabFoodOrders().clear();
+                CrabFoodOperator.readAllPresetCrabFoodOrders();
+
+                CrabFoodOperator.getAllCrabFoodOrders().clear();
+
+                clock.resetTime();
+
+                primaryStage.setScene(sceneMenu);
             }
-
-            // update stuff to txt and read again to restart program
-            CrabFoodOperator.getTotalCrabFoodOrder().setValue(0);
-
-            CrabFoodOperator.updatePartnerRestaurants();
-            CrabFoodOperator.readPartnerRestaurants();
-
-            CrabFoodOperator.getMasterMap().updateMap();
-
-            CrabFoodOperator.getAllDeliveryGuys().clear();
-            CrabFoodOperator.readAllDeliveryGuys();
-
-            CrabFoodOperator.getAllPresetCrabFoodOrders().clear();
-            CrabFoodOperator.readAllPresetCrabFoodOrders();
-
-            CrabFoodOperator.getAllCrabFoodOrders().clear();
-
-            clock.resetTime();
-
-            primaryStage.setScene(sceneMenu);
         });
 
         Button btnMR_CANCEL = new Button("Cancel");
@@ -631,7 +751,7 @@ public class Main extends Application {
         layoutMR.setVgap(10);
         layoutMR.getChildren().addAll(listRestaurant, layoutMRBottom);
 
-        sceneMR = new Scene(layoutMR, 1080, 828);
+        sceneMR = new Scene(layoutMR, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneMD(Stage primaryStage) {
@@ -675,7 +795,7 @@ public class Main extends Application {
             CrabFoodOperator.getAllCrabFoodOrders().clear();
 
             clock.resetTime();
-            
+
             primaryStage.setScene(sceneMenu);
         });
 
@@ -699,15 +819,22 @@ public class Main extends Application {
         layoutMD.setPadding(new Insets(10, 10, 10, 10));
         layoutMD.getChildren().addAll(layoutMDTop, layoutMDBottom);
 
-        sceneMD = new Scene(layoutMD, 1080, 828);
+        sceneMD = new Scene(layoutMD, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneVOL(Stage primaryStage) {
         // Order Log
         TextArea txtareaOrderLog = new TextArea();
         txtareaOrderLog.setEditable(false);
-        txtareaOrderLog.textProperty().bind(CrabFoodOperator.getLog());
         txtareaOrderLog.setFont(Font.font("Monospace", 15));
+        txtareaOrderLog.textProperty().bind(CrabFoodOperator.getLog());
+        CrabFoodOperator.getLog().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                txtareaOrderLog.selectPositionCaret(txtareaOrderLog.getLength());
+                txtareaOrderLog.deselect();
+            }
+        });
 
         // Button
         Button btnVOL_BACK = new Button("Back");
@@ -728,7 +855,32 @@ public class Main extends Application {
         layoutVOL.setPadding(new Insets(10, 10, 10, 10));
         layoutVOL.getChildren().addAll(txtareaOrderLog, layoutVOLBottom);
 
-        sceneVOL = new Scene(layoutVOL, 1080, 828);
+        sceneVOL = new Scene(layoutVOL, stageWidth.getValue(), stageHeight.getValue());
+    }
+
+    private void makeSceneVM(Stage primaryStage) {
+        // Button
+        Button btnVM_BACK = new Button("Back");
+        btnVM_BACK.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        btnVM_BACK.setOnAction(fn -> primaryStage.setScene(sceneMenu));
+
+        // #
+        HBox layoutVMBottom = new HBox(btnVM_BACK);
+        layoutVMBottom.setAlignment(Pos.CENTER);
+
+        ScrollPane gridPad = new ScrollPane(gridMap);
+        
+        // ##
+        GridPane layoutVM = new GridPane();
+        GridPane.setVgrow(gridPad, Priority.ALWAYS);
+        GridPane.setHgrow(gridPad, Priority.ALWAYS);
+        GridPane.setConstraints(gridPad, 0, 0);
+        GridPane.setConstraints(layoutVMBottom, 0, 1);
+        layoutVM.setVgap(10);
+        layoutVM.setPadding(new Insets(10, 10, 10, 10));
+        layoutVM.getChildren().addAll(gridPad, layoutVMBottom);
+
+        sceneVM = new Scene(layoutVM, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneSC(Stage primaryStage) {
@@ -780,34 +932,6 @@ public class Main extends Application {
 
         // Order Time
         Label labelOrderTime = new Label("Order Time : ");
-
-        Text txtOrderTime = new Text();
-        Thread txtOrderTimeThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                Runnable updater = new Runnable() {
-
-                    @Override
-                    public void run() {
-                        txtOrderTime.setText(clock.getTime());
-                    }
-                };
-
-                while (true) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                    }
-
-                    // UI update is run on the Application thread
-                    Platform.runLater(updater);
-                }
-            }
-
-        });
-        txtOrderTimeThread.setDaemon(true);
-        txtOrderTimeThread.start();
 
         // Restaurant
         Label labelRestaurant = new Label("Restaurant : ");
@@ -976,7 +1100,7 @@ public class Main extends Application {
         layoutSC.setPadding(new Insets(10, 10, 10, 10));
         layoutSC.getChildren().addAll(layoutSCTopLeft, layoutSCTopRight, layoutSCBottom);
 
-        sceneSC = new Scene(layoutSC, 1080, 828);
+        sceneSC = new Scene(layoutSC, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneER(Stage primaryStage) {
@@ -1024,95 +1148,122 @@ public class Main extends Application {
         Button btnER_DONE = new Button("Done");
         btnER_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnER_DONE.setOnAction(fn -> {
-            if (flagAddRes) {
-                // read restaurant name
-                String restaurantName = txtareaRestaurantName.getText();
+            // flag to indicate if user inputted location(s)
+            boolean hasPos = false;
+            for (Node tileObj : gridRestaurantLoc.getChildren()) {
+                Tile tile = (Tile) tileObj;
+                if (tile.isBlue()) {
+                    hasPos = true;
+                    break;
+                }
+            }
 
-                // read restaurant map symbol
-                Character restaurantMapSymbol = restaurantName.charAt(0);
+            if (!txtareaRestaurantName.getText().isEmpty() && hasPos && !obsListDishes.isEmpty()) {
+                if (flagAddRes) {
+                    String restaurantName = "";
+                    Character restaurantMapSymbol = '0';
 
-                // read restaurant positions 
-                Position position = new Position();
+                    // read restaurant name
+                    restaurantName = txtareaRestaurantName.getText();
 
-                // read restaurant dishes
-                ArrayList<Dish> dishes = new ArrayList<>(Arrays.asList((Dish[]) obsListDishes.toArray()));
+                    // read restaurant map symbol
+                    restaurantMapSymbol = restaurantName.charAt(0);
 
-                // after reading, set name, map symbol, positions & dishes
-                CrabFoodOperator.getPartnerRestaurants().add(new Restaurant(
-                        restaurantName,
-                        restaurantMapSymbol,
-                        position,
-                        dishes));
-
-                flagAddRes = false;
-            } else {
-                // update restaurant name
-                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                        if (restaurant.getName().equals(resToEdit.getValue())) {
-                            restaurant.setName(txtareaRestaurantName.getText());
+                    // read restaurant positions 
+                    ArrayList<Position> resLoc = new ArrayList<>();
+                    for (Node tileObj : gridRestaurantLoc.getChildren()) {
+                        Tile tile = (Tile) tileObj;
+                        if (tile.isBlue()) {
+                            resLoc.add(new Position(GridPane.getColumnIndex(tileObj),
+                                    GridPane.getRowIndex(tileObj)));
                         }
                     }
-                }
-                // update restaurant locations
-                ArrayList<Position> resLoc = new ArrayList<>();
-                for (Node tileObj : gridRestaurantLoc.getChildren()) {
-                    Tile tile = (Tile) tileObj;
-                    if (tile.isBlue()) {
-                        resLoc.add(new Position(GridPane.getColumnIndex(tileObj),
-                                GridPane.getRowIndex(tileObj)));
-                    }
-                }
-                String restaurantName = "";
-                Character restaurantMapSymbol = '0';
-                ArrayList<Dish> dishes = new ArrayList<>();
-                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                    Iterator itrRes = CrabFoodOperator.getPartnerRestaurants().iterator();
-                    while (itrRes.hasNext()) {
-                        Restaurant res = (Restaurant) itrRes.next();
-                        if (res.getName().equals(txtareaRestaurantName.getText())) {
-                            restaurantName = res.getName();
-                            restaurantMapSymbol = res.getMapSymbol();
-                            dishes = (ArrayList<Dish>) res.getAllAvailableDishes().clone();
-                            itrRes.remove();
-                        }
-                    }
-                }
-                if (!resLoc.isEmpty()) {
+
+                    // read restaurant dishes
+                    ArrayList<Dish> dishes = new ArrayList<>(Arrays.asList((Dish[]) obsListDishes.toArray()));
+
+                    // after reading, set name, map symbol, positions & dishes
                     for (int i = 0; i < resLoc.size(); i++) {
-                        CrabFoodOperator.getPartnerRestaurants().add(new Restaurant(restaurantName,
-                                restaurantMapSymbol, resLoc.get(i),
+                        CrabFoodOperator.getPartnerRestaurants().add(new Restaurant(
+                                restaurantName,
+                                restaurantMapSymbol,
+                                resLoc.get(i),
                                 (ArrayList<Dish>) dishes.clone()));
                     }
-                }
-            }
 
-            // reset sceneMR
-            obsListRestaurant.clear();
-            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                    if (!obsListRestaurant.contains(restaurant.getName())) {
-                        obsListRestaurant.add(restaurant.getName());
+                    flagAddRes = false;
+                } else {
+                    // update restaurant name
+                    if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                            if (restaurant.getName().equals(resToEdit.getValue())) {
+                                restaurant.setName(txtareaRestaurantName.getText());
+                            }
+                        }
+                    }
+                    // update restaurant locations
+                    ArrayList<Position> resLoc = new ArrayList<>();
+                    for (Node tileObj : gridRestaurantLoc.getChildren()) {
+                        Tile tile = (Tile) tileObj;
+                        if (tile.isBlue()) {
+                            resLoc.add(new Position(GridPane.getColumnIndex(tileObj),
+                                    GridPane.getRowIndex(tileObj)));
+                        }
+                    }
+                    String restaurantName = "";
+                    Character restaurantMapSymbol = '0';
+                    ArrayList<Dish> dishes = new ArrayList<>();
+                    if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                        Iterator itrRes = CrabFoodOperator.getPartnerRestaurants().iterator();
+                        while (itrRes.hasNext()) {
+                            Restaurant res = (Restaurant) itrRes.next();
+                            if (res.getName().equals(txtareaRestaurantName.getText())) {
+                                restaurantName = res.getName();
+                                restaurantMapSymbol = res.getMapSymbol();
+                                dishes = (ArrayList<Dish>) res.getAllAvailableDishes().clone();
+                                itrRes.remove();
+                            }
+                        }
+                    }
+                    if (!resLoc.isEmpty()) {
+                        for (int i = 0; i < resLoc.size(); i++) {
+                            CrabFoodOperator.getPartnerRestaurants().add(new Restaurant(restaurantName,
+                                    restaurantMapSymbol, resLoc.get(i),
+                                    (ArrayList<Dish>) dishes.clone()));
+                        }
                     }
                 }
-            }
 
-            // reset input fields
-            txtareaRestaurantName.clear();
-            for (Object tileObj : gridRestaurantLoc.getChildren()) {
-                Tile tile = (Tile) tileObj;
-                if (!tile.getText().equals("0")) {
-                    tile.colorTileNull();
-                } else {
-                    tile.colorTileGrey();
+                // reset sceneMR
+                obsListRestaurant.clear();
+                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                        if (!obsListRestaurant.contains(restaurant.getName())) {
+                            obsListRestaurant.add(restaurant.getName());
+                        }
+                    }
                 }
+
+                // reset input fields
+                txtareaRestaurantName.clear();
+                for (Object tileObj : gridRestaurantLoc.getChildren()) {
+                    Tile tile = (Tile) tileObj;
+                    if (!tile.getText().equals("0")) {
+                        tile.colorTileNull();
+                    } else {
+                        tile.colorTileGrey();
+                    }
+                }
+
+                // update map as soon as map changes
+                CrabFoodOperator.getMasterMap().updateMap();
+
+                // clear stuff in edit
+                resToEdit.setValue("");
+                obsListDishes.clear();
+
+                primaryStage.setScene(sceneMR);
             }
-
-            // clear stuff in edit
-            resToEdit.setValue("");
-            obsListDishes.clear();
-
-            primaryStage.setScene(sceneMR);
         });
 
         Button btnER_CANCEL = new Button("Cancel");
@@ -1149,7 +1300,7 @@ public class Main extends Application {
         layoutER.setPadding(new Insets(10, 10, 10, 10));
         layoutER.getChildren().addAll(layoutERTop, layoutERBottom);
 
-        sceneER = new Scene(layoutER, 1080, 828);
+        sceneER = new Scene(layoutER, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneEDs(Stage primaryStage) {
@@ -1227,27 +1378,29 @@ public class Main extends Application {
         Button btnEDs_DONE = new Button("Done");
         btnEDs_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnEDs_DONE.setOnAction(fn -> {
-            // clear selected items
-            if (listDishes.getSelectionModel().getSelectedItem() != null) {
-                listDishes.getSelectionModel().clearSelection();
-            }
+            if (!obsListDishes.isEmpty()) {
+                // clear selected items
+                if (listDishes.getSelectionModel().getSelectedItem() != null) {
+                    listDishes.getSelectionModel().clearSelection();
+                }
 
-            // if obsListDishes does not contain certain dishes, remove them
-            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                    if (!restaurant.getAllAvailableDishes().isEmpty()) {
-                        Iterator itrAllAvailableDishes = restaurant.getAllAvailableDishes().iterator();
-                        while (itrAllAvailableDishes.hasNext()) {
-                            Dish dish = (Dish) itrAllAvailableDishes.next();
-                            if (!obsListDishes.contains(dish.getName())) {
-                                itrAllAvailableDishes.remove();
+                // if obsListDishes does not contain certain dishes, remove them
+                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                        if (!restaurant.getAllAvailableDishes().isEmpty()) {
+                            Iterator itrAllAvailableDishes = restaurant.getAllAvailableDishes().iterator();
+                            while (itrAllAvailableDishes.hasNext()) {
+                                Dish dish = (Dish) itrAllAvailableDishes.next();
+                                if (!obsListDishes.contains(dish.getName())) {
+                                    itrAllAvailableDishes.remove();
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            primaryStage.setScene(sceneER);
+                primaryStage.setScene(sceneER);
+            }
         });
 
         // #
@@ -1264,7 +1417,7 @@ public class Main extends Application {
         layoutEDs.setVgap(10);
         layoutEDs.getChildren().addAll(listDishes, layoutEDsBottom);
 
-        sceneEDs = new Scene(layoutEDs, 1080, 828);
+        sceneEDs = new Scene(layoutEDs, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private void makeSceneED(Stage primaryStage) {
@@ -1299,59 +1452,62 @@ public class Main extends Application {
         Button btnED_DONE = new Button("Done");
         btnED_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnED_DONE.setOnAction(fn -> {
-            if (flagAddDish) {
-                // create a new dish with the written dish & time
-                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                        if (restaurant.getName().equals(resToEdit.getValue())) {
-                            restaurant.getAllAvailableDishes().add(restaurant.new Dish(txtareaDishName.getText(),
-                                    Integer.parseInt(spinnerDishPrepTime.getValue().toString())));
+            if (!txtareaDishName.getText().isEmpty()) {
+
+                if (flagAddDish) {
+                    // create a new dish with the written dish & time
+                    if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                            if (restaurant.getName().equals(resToEdit.getValue())) {
+                                restaurant.getAllAvailableDishes().add(restaurant.new Dish(txtareaDishName.getText(),
+                                        Integer.parseInt(spinnerDishPrepTime.getValue().toString())));
+                            }
                         }
                     }
-                }
-                flagAddDish = false;
-            } else {
-                // edit dish, update dish name & dish prep time
-                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                        if (restaurant.getName().equals(resToEdit.getValue())) {
-                            if (!restaurant.getAllAvailableDishes().isEmpty()) {
-                                for (Dish dish : restaurant.getAllAvailableDishes()) {
-                                    if (dish.getName().equals(dishToEdit.getValue())) {
-                                        dish.setName(txtareaDishName.getText());
-                                        dish.setFoodPrepareDuration(Integer.parseInt(spinnerDishPrepTime.getValue().toString()));
-                                        break;
+                    flagAddDish = false;
+                } else {
+                    // edit dish, update dish name & dish prep time
+                    if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                            if (restaurant.getName().equals(resToEdit.getValue())) {
+                                if (!restaurant.getAllAvailableDishes().isEmpty()) {
+                                    for (Dish dish : restaurant.getAllAvailableDishes()) {
+                                        if (dish.getName().equals(dishToEdit.getValue())) {
+                                            dish.setName(txtareaDishName.getText());
+                                            dish.setFoodPrepareDuration(Integer.parseInt(spinnerDishPrepTime.getValue().toString()));
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // read the updated dishes to display in sceneEDs
-            obsListDishes.clear();
-            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                    if (restaurant.getName().equals(resToEdit.getValue())) {
-                        if (!restaurant.getAllAvailableDishes().isEmpty()) {
-                            for (Dish dish : restaurant.getAllAvailableDishes()) {
-                                obsListDishes.add(dish.getName());
+                // read the updated dishes to display in sceneEDs
+                obsListDishes.clear();
+                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                        if (restaurant.getName().equals(resToEdit.getValue())) {
+                            if (!restaurant.getAllAvailableDishes().isEmpty()) {
+                                for (Dish dish : restaurant.getAllAvailableDishes()) {
+                                    obsListDishes.add(dish.getName());
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
+
+                // reset input fields
+                txtareaDishName.clear();
+                spinnerDishPrepTime.getValueFactory().setValue(5);
+
+                // clear stuff in edit
+                dishToEdit.setValue("");
+
+                primaryStage.setScene(sceneEDs);
             }
-
-            // reset input fields
-            txtareaDishName.clear();
-            spinnerDishPrepTime.getValueFactory().setValue(5);
-
-            // clear stuff in edit
-            dishToEdit.setValue("");
-
-            primaryStage.setScene(sceneEDs);
         });
 
         Button btnED_CANCEL = new Button("Cancel");
@@ -1383,7 +1539,7 @@ public class Main extends Application {
         GridPane.setConstraints(layoutEDBottom, 0, 1);
         layoutED.setPadding(new Insets(10, 10, 10, 10));
         layoutED.getChildren().addAll(layoutEDTop, layoutEDBottom);
-        sceneED = new Scene(layoutED, 1080, 828);
+        sceneED = new Scene(layoutED, stageWidth.getValue(), stageHeight.getValue());
     }
 
     private class Tile extends StackPane {
@@ -1430,6 +1586,10 @@ public class Main extends Application {
 
         public void colorTileGrey() {
             border.setFill(Color.GREY);
+        }
+
+        public void colorTileLightGrey() {
+            border.setFill(Color.LIGHTGRAY);
         }
 
         public String getText() {

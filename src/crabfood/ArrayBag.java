@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class ArrayBag<T> implements BagInterface<T> {
 
-    private int DEFAULT_CAPACITY = 25;
+    private int DEFAULT_CAPACITY = 1000;
     private T[] bag = (T[]) new Object[DEFAULT_CAPACITY];
     private int numberOfEntries;
     

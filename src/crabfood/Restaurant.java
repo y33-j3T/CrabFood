@@ -20,7 +20,7 @@ class Restaurant {
         this.allRestaurantOrders = new ArrayList<>();
     }
 
-    public Restaurant(String name) {
+    public Restaurant(String name)  {
         this.name = name;
         this.mapSymbol = name.charAt(0);
         this.position = new Position(0, 0);

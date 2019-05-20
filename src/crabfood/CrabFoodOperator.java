@@ -64,14 +64,6 @@ class CrabFoodOperator {
         process = new SimpleStringProperty("");
     }
 
-//    public static boolean isNumeric(String strNum) {
-//        try {
-//            Double.parseDouble(strNum);
-//        } catch (NumberFormatException | NullPointerException e) {
-//            return false;
-//        }
-//        return true;
-//    }
     /**
      * Allocate CrabFood orders to delivery men by their empty slots
      */
