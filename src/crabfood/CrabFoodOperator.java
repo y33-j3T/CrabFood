@@ -117,6 +117,7 @@ class CrabFoodOperator {
                 for (DeliveryGuy deliveryGuy : CrabFoodOperator.getAllDeliveryGuys()) {
                     if (deliveryGuy.getAllDeliverySession().isEmpty()) {
                         theGuy = deliveryGuy;
+                        break;
                     }
                 }
             } else {
@@ -124,6 +125,7 @@ class CrabFoodOperator {
                     String prevDeliveryEndTime = deliveryGuy.getAllDeliverySession().get(deliveryGuy.getAllDeliverySession().size() - 1).getDeliveryEndTime();
                     if (earliest.equals(prevDeliveryEndTime)) {
                         theGuy = deliveryGuy;
+                        break;
                     }
                 }
             }
@@ -245,7 +247,7 @@ class CrabFoodOperator {
      */
     public static void appendToProcess(String lineToAppend) {
         // append internally to log
-        process.set(process.concat("\n" + clock.getTime() + " " + lineToAppend).get());
+        process.set(process.concat(clock.getTime() + " " + lineToAppend).get() + "\n");
     }
 
     /**
@@ -299,11 +301,12 @@ class CrabFoodOperator {
                     pw.print(Restaurant.toTxtDishes(restaurant.getName()) + "\n");
                 }
             }
-            clock.resetTime();
         } catch (FileNotFoundException ex) {
             System.out.println("\"partner-restaurant.txt\" not found.");
         } finally {
-            pw.close();
+            if (pw != null) {
+                pw.close();
+            }
         }
     }
 
@@ -311,6 +314,10 @@ class CrabFoodOperator {
      * load previously saved "partner-restaurant.txt"
      */
     public static void readPartnerRestaurants() {
+        if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+            CrabFoodOperator.getPartnerRestaurants().clear();
+        }
+
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/partner-restaurant.txt"));
 
@@ -361,6 +368,10 @@ class CrabFoodOperator {
      * load previously saved "delivery-guy.txt"
      */
     public static void readAllDeliveryGuys() {
+        if (!CrabFoodOperator.getAllDeliveryGuys().isEmpty()) {
+            CrabFoodOperator.getAllDeliveryGuys().clear();
+        }
+
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/delivery-guy.txt"));
 
@@ -392,7 +403,9 @@ class CrabFoodOperator {
         } catch (FileNotFoundException ex) {
             System.out.println("\"log.txt\" not found.");
         } finally {
-            pw.close();
+            if (pw != null) {
+                pw.close();
+            }
         }
     }
 
@@ -400,6 +413,10 @@ class CrabFoodOperator {
      * Load preset CrabFood orders from "crabfood-order.txt" Time must be sorted
      */
     public static void readAllPresetCrabFoodOrders() {
+        if (!CrabFoodOperator.getAllPresetCrabFoodOrders().isEmpty()) {
+            CrabFoodOperator.getAllPresetCrabFoodOrders().clear();
+        }
+
         try {
             Scanner s = new Scanner(new FileInputStream("crabfood-io/preset-crabfood-order.txt"));
 
@@ -450,6 +467,9 @@ class CrabFoodOperator {
         }
     }
 
+    /**
+     * sort CrabFood orders whenever any new order is inserted
+     */
     public static void sortCfOrders() {
         if (!allCrabFoodOrders.isEmpty()) {
             // sort allCrabFoodOrders by order time 
@@ -462,7 +482,6 @@ class CrabFoodOperator {
             CrabFoodOperator.selectionSort(timeList);
 
             ArrayList<CrabFoodOrder> sortedCfOrders = new ArrayList<>();
-
             Iterator itrTimeList = timeList.iterator();
             while (itrTimeList.hasNext()) {
                 String time = (String) itrTimeList.next();
@@ -474,6 +493,7 @@ class CrabFoodOperator {
                 itrTimeList.remove();
             }
 
+            allCrabFoodOrders.clear();
             allCrabFoodOrders = sortedCfOrders;
 
             // rearrange customerId according to order time

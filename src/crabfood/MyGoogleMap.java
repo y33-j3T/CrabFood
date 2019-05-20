@@ -110,7 +110,9 @@ public class MyGoogleMap {
             } catch (FileNotFoundException ex) {
                 System.out.println("\"map.txt\" not found.");
             } finally {
-                pw.close();
+                if (pw != null) {
+                    pw.close();
+                }
             }
         } else {
             System.out.println("Positions overlap. Unable to update map.");
@@ -121,7 +123,7 @@ public class MyGoogleMap {
     public static int getDistance(Position pos1, Position pos2) {
         return Math.abs(pos1.getPosX() - pos2.getPosX()) + Math.abs(pos1.getPosY() - pos2.getPosY());
     }
-    
+
     public static int getTravelDuration(Position pos1, Position pos2) {
         return getDistance(pos1, pos2);
     }
@@ -139,14 +141,16 @@ public class MyGoogleMap {
     }
 
     public boolean hasOverlappedPositions() {
-        ArrayBag<Position> allPositions = new ArrayBag<>();
+        ArrayBag<String> allPositions = new ArrayBag<>();
         for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-            allPositions.add(restaurant.getPosition());
+            allPositions.add(restaurant.getPosition().toString());
         }
 
-        for (Object p : (Object[]) allPositions.toArray()) {
-            if (allPositions.getFrequencyOf((Position) p) > 1) {
-                return true;
+        if (!allPositions.isEmpty()) {
+            for (Object p : (Object[]) allPositions.toArray()) {
+                if (allPositions.getFrequencyOf((String) p) > 1) {
+                    return true;
+                }
             }
         }
         return false;

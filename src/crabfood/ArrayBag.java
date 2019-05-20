@@ -88,7 +88,7 @@ public class ArrayBag<T> implements BagInterface<T> {
     public int getFrequencyOf(T anEntry) {
         int freq = 0;
         for (int i = 0; i < numberOfEntries; i++) {
-            if (anEntry == bag[i]) {
+            if (anEntry.equals(bag[i])) {
                 freq++;
             }
         }
