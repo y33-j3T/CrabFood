@@ -52,37 +52,36 @@ class DeliveryGuy {
         if (!CrabFoodOperator.getAllDeliveryGuys().isEmpty()) {
             for (DeliveryGuy guy : CrabFoodOperator.getAllDeliveryGuys()) {
                 if (!guy.getAllDeliverySession().isEmpty()) {
-                    for (DeliverySession session : guy.getAllDeliverySession()) {
-                        if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) < 0) {
-                            // move to restaurant branch to "fetch prepared order"
-                            if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() != 0) {
-                                if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() < 0) {
-                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
-                                } else if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() > 0) {
-                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
-                                }
-                            } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() != 0) {
-                                if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() < 0) {
-                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
-                                } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() > 0) {
-                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
-                                }
+                    DeliverySession session = guy.getAllDeliverySession().get(0);
+                    if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) < 0) {
+                        // move to restaurant branch to "fetch prepared order"
+                        if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() != 0) {
+                            if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() < 0) {
+                                guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
+                            } else if (guy.getCurrentPosition().getPosX() - session.getCrabFoodOrderTBD().getBranchLocation().getPosX() > 0) {
+                                guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
                             }
-                        } else if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) >= 0
-                                && SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryEndTime()) < 0) {
-                            // move from restaurant branch to delivery location
-                            if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() != 0) {
-                                if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() < 0) {
-                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
-                                } else if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() > 0) {
-                                    guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
-                                }
-                            } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() != 0) {
-                                if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() < 0) {
-                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
-                                } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() > 0) {
-                                    guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
-                                }
+                        } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() != 0) {
+                            if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() < 0) {
+                                guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
+                            } else if (guy.getCurrentPosition().getPosY() - session.getCrabFoodOrderTBD().getBranchLocation().getPosY() > 0) {
+                                guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
+                            }
+                        }
+                    } else if (SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryStartTime()) >= 0
+                            && SimulatedTime.compareStringTime(clock.getTime(), session.getDeliveryEndTime()) < 0) {
+                        // move from restaurant branch to delivery location
+                        if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() != 0) {
+                            if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() < 0) {
+                                guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() + 1);
+                            } else if (guy.getCurrentPosition().getPosX() - session.getDeliveryEndPosition().getPosX() > 0) {
+                                guy.getCurrentPosition().setPosX(guy.getCurrentPosition().getPosX() - 1);
+                            }
+                        } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() != 0) {
+                            if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() < 0) {
+                                guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() + 1);
+                            } else if (guy.getCurrentPosition().getPosY() - session.getDeliveryEndPosition().getPosY() > 0) {
+                                guy.getCurrentPosition().setPosY(guy.getCurrentPosition().getPosY() - 1);
                             }
                         }
                     }

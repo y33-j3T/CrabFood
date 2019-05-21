@@ -122,7 +122,14 @@ class CrabFoodOperator {
                 }
             }
 
-            int goToBranchDuration = MyGoogleMap.getTravelDuration(theGuy.getCurrentPosition(), cfOrder.getBranchLocation());
+            int goToBranchDuration = 0;
+            if (theGuy.getAllDeliverySession().size() >= 1) {
+                goToBranchDuration = MyGoogleMap.getTravelDuration(
+                        theGuy.getAllDeliverySession().get(theGuy.getAllDeliverySession().size() - 1).getDeliveryEndPosition(),
+                        cfOrder.getBranchLocation());
+            } else {
+                goToBranchDuration = MyGoogleMap.getTravelDuration(theGuy.getCurrentPosition(), cfOrder.getBranchLocation());
+            }
             int deliverDuration = MyGoogleMap.getTravelDuration(cfOrder.getBranchLocation(), cfOrder.getDeliveryLocation());
             String startTime = SimulatedTime.getTimeAfter(earliest, goToBranchDuration);
             String endTime = SimulatedTime.getTimeAfter(startTime, deliverDuration);

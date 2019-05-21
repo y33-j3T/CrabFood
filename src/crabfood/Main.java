@@ -198,7 +198,8 @@ public class Main extends Application {
                                 for (CrabFoodOrder cfOrder : CrabFoodOperator.getAllCrabFoodOrders()) {
                                     if (cfOrder.getOrderTime().equals(clock.getTime())) {
                                         // update process
-                                        String processOrder = String.format("Customer %d wants to order ", cfOrder.getCustomerId());
+                                        String processOrder = String.format("Customer %d at %s wants to order ",
+                                                cfOrder.getCustomerId(), cfOrder.getDeliveryLocation().toString());
                                         int count = 0;
                                         for (Map.Entry mapElement : cfOrder.getDishOrders().entrySet()) {
                                             if (count == cfOrder.getDishOrders().size() - 1) {
@@ -372,7 +373,7 @@ public class Main extends Application {
 
                 while (true) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(200);
                     } catch (InterruptedException ex) {
                     }
 
@@ -454,7 +455,7 @@ public class Main extends Application {
                     for (Position pos : branchLoc) {
                         if (i == pos.getPosX() && j == pos.getPosY()) {
                             tile.colorTileLightGrey();
-                        } 
+                        }
                     }
                 }
             }
@@ -869,7 +870,7 @@ public class Main extends Application {
         layoutVMBottom.setAlignment(Pos.CENTER);
 
         ScrollPane gridPad = new ScrollPane(gridMap);
-        
+
         // ##
         GridPane layoutVM = new GridPane();
         GridPane.setVgrow(gridPad, Priority.ALWAYS);
