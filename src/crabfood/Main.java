@@ -371,7 +371,7 @@ public class Main extends Application {
 
                 while (true) {
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(1000);
                     } catch (InterruptedException ex) {
                     }
 
@@ -773,8 +773,7 @@ public class Main extends Application {
 
             CrabFoodOperator.getAllDeliveryGuys().clear();
             for (int i = 1; i <= Integer.parseInt(spinnerNumDeliveryMan.getValue().toString()); i++) {
-                DeliveryGuy deliveryGuy = new DeliveryGuy(i);
-                CrabFoodOperator.getAllDeliveryGuys().add(deliveryGuy);
+                CrabFoodOperator.getAllDeliveryGuys().add(new DeliveryGuy(i));
             }
 
             // update stuff to txt and read again to restart program
@@ -785,7 +784,7 @@ public class Main extends Application {
 
             CrabFoodOperator.getMasterMap().updateMap();
 
-            CrabFoodOperator.getAllDeliveryGuys().clear();
+            CrabFoodOperator.updateAllDeliveryGuys();
             CrabFoodOperator.readAllDeliveryGuys();
 
             CrabFoodOperator.getAllPresetCrabFoodOrders().clear();

@@ -6,14 +6,19 @@ The Klogger 1
 00:10
 Crusty Crab
 Crabby Patty
-5 5
+7 5
 
 00:15
 Crusty Crab
 Crabby Patty 2
-0 5
+69 80
 
 00:05
 Phum Bucket
 Phum Pie 1
-5 0
+37 63
+
+15:25
+Sailors Surprise
+Crabby Meal 2
+44 20
