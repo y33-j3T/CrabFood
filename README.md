@@ -3,12 +3,26 @@ Food delivery service simulator. Something like [GrabFood](https://www.grab.com/
 
 ## Contents
 - [Introduction](#Introduction)
+- [Program Description](#Program-Description)
 - [Installation](#Installation)
 - [Usage](#Usage)
 - [Contributing](#Contributing)
 - [License](#License)
 
 ## Introduction
+CrabFood was originally an assignment for a data structure course in Java. 
+
+
+## Program Description
+Citizens in Crabby Island (known as the Crabbians) do have a crabby culture, you can never imagine how much they love crab dishes. The most recent statistics showed that every citizen in Crabby Island orders at least 3 crab dishes per day. Your company, Crab has seen this as a golden business opportunity and decided to come up with a crab delivery service -- CrabFood for the Crabbians. Now, you are the selected programmers to develop this CrabFood system. Make sure that you come up with an amazing product that can help improve the Crabbians’ lives.
+
+Your team is given this CrabFood project for 10,000 CrabCoins (currency of Crabby Island, CC). After analyzing the Crabbians’ feedback, as well as having some serious meetings with the top management, your team finally finalized the requirements for CrabFood. CrabFood is defined as a desktop application that manages and keeps track of daily delivery order for Crabbians. To ensure the efficiency of delivery services, just think about [GrabFood](#CrabFood).
+
+To shorten your work, your team has come up with a checklist for the basic requirements:
+1. Make a Java console application that shows the delivery process.
+2. Make a logging system that shows the entire process when CrabFood is up.
+3. Make a reporting system that displays daily order information for every restaurant. This is explicitly mentioned by the restaurants that partner with CrabFood for them to improve their services.
+4. You will be given sample input files to help in your development, utilize them wisely.
 
 ## Installation
 - [Java SE Development Kit 8 (JDK 8)](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
