@@ -304,3 +304,72 @@
 | 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
 | 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
 | 1           | 00:05      | 00:15                 | 01:36          | 10               | 64               | 91             | Phum Bucket          | (19, 17) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+| 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
+| 1           | 00:05      | 00:15                 | 01:36          | 10               | 64               | 91             | Phum Bucket          | (19, 17) 
+| 3           | 00:15      | 00:55                 | 03:05          | 40               | 109              | 170            | Crusty Crab          | (20, 20) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+| 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
+| 1           | 00:05      | 00:15                 | 01:36          | 10               | 64               | 91             | Phum Bucket          | (19, 17) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+| 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
+| 1           | 00:05      | 00:15                 | 01:36          | 10               | 64               | 91             | Phum Bucket          | (19, 17) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+| 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 
+| 4           | 00:20      | 00:40                 | 00:53          | 20               | 1                | 33             | Burger Krusty        | (0, 1) 
+| 1           | 00:05      | 00:15                 | 01:36          | 10               | 64               | 91             | Phum Bucket          | (19, 17) 
+| 3           | 00:15      | 00:55                 | 03:05          | 40               | 109              | 170            | Crusty Crab          | (20, 20) 
+| 5           | 03:41      | 04:01                 | 04:20          | 20               | 1                | 39             | Burger Krusty        | (0, 1) 
+
+| Customer ID | Order Time | Finished Cooking Time | Delivered Time | Cooking Duration | Deliver Duration | Total Duration | Restaurant           | Branch 
+| 2           | 00:10      | 00:30                 | 00:39          | 20               | 3                | 29             | Crusty Crab          | (6, 7) 

@@ -342,7 +342,7 @@ class CrabFoodOperator {
                         posCount++;
                     } else {
                         if (!input.isEmpty()) {
-                            dishes.add(restaurant.new Dish(input, Integer.parseInt(s.nextLine())));
+                            dishes.add(new Dish(input, Integer.parseInt(s.nextLine())));
                         } else {
                             break;
                         }

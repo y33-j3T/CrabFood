@@ -101,10 +101,13 @@ public class Main extends Application {
     StringProperty dishToEdit = new SimpleStringProperty("");
 
     // Dish list in makeSceneEDs
-    ListView listDishes = new ListView(obsListDishes);
+    ListView<String> listDishes = new ListView(obsListDishes);
 
     // Text area to put name of selected dish to edit
     TextArea txtareaDishName = new TextArea();
+
+    // Temporary list of dishes to be added into new restaurant
+    ArrayList<Dish> dishesToAddTemp = new ArrayList<>();
 
     // Spinner to put dish prep time of dish to edit
     Spinner spinnerDishPrepTime = new Spinner(1, 60, 5);
@@ -657,7 +660,6 @@ public class Main extends Application {
         btnMR_DONE.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnMR_DONE.setOnAction(fn -> {
             if (!obsListRestaurant.isEmpty()) {
-
                 // clear selected items
                 if (listRestaurant.getSelectionModel().getSelectedItem() != null) {
                     listRestaurant.getSelectionModel().clearSelection();
@@ -1178,8 +1180,9 @@ public class Main extends Application {
                     }
 
                     // read restaurant dishes
-                    ArrayList<Dish> dishes = new ArrayList<>(Arrays.asList((Dish[]) obsListDishes.toArray()));
-
+                    ArrayList<Dish> dishes = new ArrayList<>(dishesToAddTemp);
+                    dishesToAddTemp.clear();
+                    
                     // after reading, set name, map symbol, positions & dishes
                     for (int i = 0; i < resLoc.size(); i++) {
                         CrabFoodOperator.getPartnerRestaurants().add(new Restaurant(
@@ -1281,6 +1284,7 @@ public class Main extends Application {
             // clear stuff in edit
             resToEdit.setValue("");
             obsListDishes.clear();
+            dishesToAddTemp.clear();
 
             primaryStage.setScene(sceneMR);
         });
@@ -1306,27 +1310,29 @@ public class Main extends Application {
         Button btnEDs_EDIT = new Button("Edit");
         btnEDs_EDIT.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnEDs_EDIT.setOnAction(fn -> {
-            // take down dish name to edit for sceneED use
-            dishToEdit.setValue(listDishes.getSelectionModel().getSelectedItem().toString());
+            if (listDishes.getSelectionModel().getSelectedItem() != null) {
+                // take down dish name to edit for sceneED use
+                dishToEdit.setValue(listDishes.getSelectionModel().getSelectedItem().toString());
 
-            // put the dish's name to be edit in sceneED
-            txtareaDishName.setText(dishToEdit.getValue());
+                // put the dish's name to be edit in sceneED
+                txtareaDishName.setText(dishToEdit.getValue());
 
-            // put the dish's prep time to be edit in sceneED
-            if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                    if (!restaurant.getAllAvailableDishes().isEmpty()) {
-                        for (Dish dish : restaurant.getAllAvailableDishes()) {
-                            if (dish.getName().equals(dishToEdit.getValue())) {
-                                spinnerDishPrepTime.getValueFactory().setValue(dish.getFoodPrepareDuration());
-                                break;
+                // put the dish's prep time to be edit in sceneED
+                if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
+                    for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
+                        if (!restaurant.getAllAvailableDishes().isEmpty()) {
+                            for (Dish dish : restaurant.getAllAvailableDishes()) {
+                                if (dish.getName().equals(dishToEdit.getValue())) {
+                                    spinnerDishPrepTime.getValueFactory().setValue(dish.getFoodPrepareDuration());
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            primaryStage.setScene(sceneED);
+                primaryStage.setScene(sceneED);
+            }
         });
 
         Button btnEDs_DELETE = new Button("Delete");
@@ -1336,7 +1342,6 @@ public class Main extends Application {
                 // for now, remove only from observable list
                 obsListDishes.remove(listDishes.getSelectionModel().getSelectedItem().toString());
             }
-            primaryStage.setScene(sceneED);
         });
 
         Button btnEDs_ADD = new Button("Add");
@@ -1454,14 +1459,12 @@ public class Main extends Application {
 
                 if (flagAddDish) {
                     // create a new dish with the written dish & time
-                    if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
-                        for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
-                            if (restaurant.getName().equals(resToEdit.getValue())) {
-                                restaurant.getAllAvailableDishes().add(restaurant.new Dish(txtareaDishName.getText(),
-                                        Integer.parseInt(spinnerDishPrepTime.getValue().toString())));
-                            }
-                        }
-                    }
+                    dishesToAddTemp.add(new Dish(txtareaDishName.getText(),
+                            Integer.parseInt(spinnerDishPrepTime.getValue().toString())));
+                    System.out.println(txtareaDishName.getText());
+                    obsListDishes.add(txtareaDishName.getText());
+                    System.out.println(obsListDishes);
+                    
                     flagAddDish = false;
                 } else {
                     // edit dish, update dish name & dish prep time

@@ -20,7 +20,7 @@ class Restaurant {
         this.allRestaurantOrders = new ArrayList<>();
     }
 
-    public Restaurant(String name)  {
+    public Restaurant(String name) {
         this.name = name;
         this.mapSymbol = name.charAt(0);
         this.position = new Position(0, 0);
@@ -47,7 +47,7 @@ class Restaurant {
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                 if (restaurant.getName().equals(restaurantName)) {
                     String pos = restaurant.getPosition().toString();
-                    pos = pos.substring(1, pos.length()-1).replaceFirst(",", "");
+                    pos = pos.substring(1, pos.length() - 1).replaceFirst(",", "");
                     result += pos + "\n";
                 }
             }
@@ -61,13 +61,13 @@ class Restaurant {
 //        }
         return result;
     }
-    
+
     public static String toTxtDishes(String restaurantName) {
         String result = "";
         if (!CrabFoodOperator.getPartnerRestaurants().isEmpty()) {
             for (Restaurant restaurant : CrabFoodOperator.getPartnerRestaurants()) {
                 if (restaurant.getName().equals(restaurantName)) {
-                    if (!restaurant.getAllAvailableDishes().isEmpty()){
+                    if (!restaurant.getAllAvailableDishes().isEmpty()) {
                         for (Dish dish : restaurant.getAllAvailableDishes()) {
                             result += dish.getName() + "\n";
                             result += dish.getFoodPrepareDuration() + "\n";
@@ -194,12 +194,12 @@ class Restaurant {
         }
     }
 
-    class Dish {
+    static class Dish {
 
         private String name;
         private int foodPrepareDuration;
 
-        public Dish(String name, int foodPrepareDuration) {
+        Dish(String name, int foodPrepareDuration) {
             this.name = name;
             this.foodPrepareDuration = foodPrepareDuration;
         }
