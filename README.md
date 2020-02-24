@@ -53,7 +53,7 @@ Your team is given this CrabFood project for 10,000 CrabCoins (currency of Crabb
 
 ## Installation
 - [Java SE Development Kit 8 (JDK 8)](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- [NetBeans IDE 8.0.1](https://netbeans.org/downloads/8.0.1/)
+
 
 ## Usage
 1. Download this repository in a zip file by clicking [here](https://github.com/y33-j3T/CrabFood/archive/master.zip) or execute this from the terminal:
