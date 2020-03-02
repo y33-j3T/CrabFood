@@ -4,7 +4,6 @@ Food delivery service simulator. Something like [GrabFood](https://www.grab.com/
 ## Contents
 - [Introduction](#Introduction)
 - [Program Description](#Program-Description)
-- [Installation](#Installation)
 - [Usage](#Usage)
 - [Contributing](#Contributing)
 - [License](#License)
@@ -50,10 +49,6 @@ Your team is given this CrabFood project for 10,000 CrabCoins (currency of Crabb
 ![CrabFood Flow Chart](./CrabFood%20Flow%20Chart.jpg)
 
 </details>
-
-## Installation
-- [Java SE Development Kit 8 (JDK 8)](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
 
 ## Usage
 1. Download this repository in a zip file by clicking [here](https://github.com/y33-j3T/CrabFood/archive/master.zip) or execute this from the terminal:
