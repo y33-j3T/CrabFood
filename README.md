@@ -46,7 +46,7 @@ Your team is given this CrabFood project for 10,000 CrabCoins (currency of Crabb
 <details>
 <summary>Details</summary>
 
-![CrabFood Flow Chart](./CrabFood%20Flow%20Chart.jpg)
+![CrabFood Flow Chart](.readme/flowchart.jpg)
 
 </details>
 
